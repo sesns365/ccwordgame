@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特工識字大冒險</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- Icons (Inline SVG) ---
+        const IconLock = () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+        const IconSpeaker = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>;
+        const IconSettings = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+        const IconHeart = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>;
+
+        // ==========================================
+        // 📚 題庫設定區 (GAME_DATA)
+        // ==========================================
+        const GAME_DATA = {
+            1: [
+                [{ word: '衣', phrases: ['衣服', '糖衣'] }, { word: '刻', phrases: ['刻苦', '立刻'] }, { word: '晚', phrases: ['晚上', '晚到'] }, { word: '陽', phrases: ['陽光', '陽傘'] }, { word: '半', phrases: ['一半', '半夜'] }, { word: '觀', phrases: ['觀光', '觀察'] }, { word: '石', phrases: ['岩石', '寶石'] }, { word: '特', phrases: ['特色', '特別'] }, { word: '處', phrases: ['處理', '處分'] }, { word: '通', phrases: ['通過', '通知'] }, { word: '照', phrases: ['照片', '照亮'] }],
+                [{ word: '該', phrases: ['應該'] }, { word: '北', phrases: ['北回歸線', '北極'] }, { word: '夜', phrases: ['夜市', '日夜'] }, { word: '千', phrases: ['一千', '千萬'] }, { word: '啊', phrases: ['啊唷', '啊哈'] }, { word: '婆', phrases: ['老婆', '婆婆媽媽'] }, { word: '木', phrases: ['木瓜', '木製品'] }, { word: '雨', phrases: ['雨具', '淚如雨下'] }, { word: '題', phrases: ['題目', '題材'] }, { word: '夫', phrases: ['農夫', '懦夫'] }, { word: '魚', phrases: ['釣魚', '魚'] }],
+                [{ word: '田', phrases: ['田地', '田產'] }, { word: '讀', phrases: ['閱讀', '讀者'] }, { word: '怕', phrases: ['害怕', '恐怕'] }, { word: '趕', phrases: ['趕快', '追趕'] }, { word: '容', phrases: ['容易', '容納'] }, { word: '士', phrases: ['士兵', '博士'] }, { word: '共', phrases: ['共同', '共度'] }, { word: '流', phrases: ['流浪', '流傳'] }, { word: '錢', phrases: ['金錢', '賺錢'] }, { word: '期', phrases: ['期待', '期限'] }, { word: '九', phrases: ['九牛一毛'] }],
+                [{ word: '牛', phrases: ['乳牛', '九牛一毛'] }, { word: '遠', phrases: ['遠處', '遠見'] }, { word: '狗', phrases: ['雞鳴狗盜', '兔死狗烹'] }, { word: '妹', phrases: ['辣妹', '姊妹'] }, { word: '保', phrases: ['保管', '保護'] }, { word: '今', phrases: ['今日'] }, { word: '河', phrases: ['河流'] }, { word: '軍', phrases: ['軍事'] }, { word: '近', phrases: ['近況', '靠近'] }, { word: '報', phrases: ['報名', '報告'] }, { word: '收', phrases: ['收穫', '收拾'] }],
+                [{ word: '利', phrases: ['利用', '利益'] }, { word: '黃', phrases: ['黃昏', '黃金'] }, { word: '紅', phrases: ['紅腫', '分紅'] }, { word: '計', phrases: ['計算', '計較'] }, { word: '應', phrases: ['答應', '應用'] }, { word: '坐', phrases: ['坐車', '坐以待斃'] }, { word: '除', phrases: ['開除', '除非'] }, { word: '玩', phrases: ['玩具', '玩耍'] }, { word: '記', phrases: ['記錄', '登記'] }, { word: '示', phrases: ['示範', '示威'] }, { word: '離', phrases: ['離開', '離譜'] }],
+                [{ word: '思', phrases: ['思考', '思念'] }, { word: '影', phrases: ['影印', '影響'] }, { word: '幫', phrases: ['幫忙', '幫手'] }, { word: '裝', phrases: ['服裝', '安裝'] }, { word: '害', phrases: ['災害', '害怕'] }, { word: '城', phrases: ['城市', '城牆'] }, { word: '睡', phrases: ['睡覺', '睡眠'] }, { word: '隨', phrases: ['隨便', '隨時'] }, { word: '農', phrases: ['農場', '農作物'] }, { word: '奶', phrases: ['奶油', '奶奶'] }],
+                [{ word: '跳', phrases: ['跳舞', '跳躍'] }, { word: '節', phrases: ['節省', '禮節'] }, { word: '熱', phrases: ['熱心', '熱鬧'] }, { word: '總', phrases: ['總是', '總算'] }, { word: '和', phrases: ['和平', '和氣'] }, { word: '強', phrases: ['強大', '強調'] }, { word: '養', phrases: ['營養', '養育'] }, { word: '剛', phrases: ['剛才', '剛強'] }, { word: '辦', phrases: ['辦法', '辦公'] }, { word: '底', phrases: ['底細', '年底'] }],
+                [{ word: '根', phrases: ['根據', '根本'] }, { word: '訴', phrases: ['訴說', '告訴'] }, { word: '交', phrases: ['交代', '交談'] }, { word: '線', phrases: ['線索', '線條'] }, { word: '雖', phrases: ['雖然'] }, { word: '管', phrases: ['管教', '管理'] }, { word: '苦', phrases: ['艱苦', '苦口婆心'] }, { word: '黑', phrases: ['黑暗', '漆黑'] }, { word: '片', phrases: ['照片', '明信片'] }, { word: '產', phrases: ['產生', '產品'] }],
+                [{ word: '華', phrases: ['才華', '華麗'] }, { word: '布', phrases: ['宣布', '瀑布'] }, { word: '步', phrases: ['腳步', '散步'] }, { word: '土', phrases: ['土地', '鄉土'] }, { word: '始', phrases: ['開始', '原始'] }, { word: '提', phrases: ['提醒', '提供'] }, { word: '雲', phrases: ['雲彩', '雲端'] }, { word: '爺', phrases: ['爺爺', '老天爺'] }, { word: '必', phrases: ['必須', '不必'] }, { word: '娘', phrases: ['新娘', '娘家'] }],
+                [{ word: '整', phrases: ['整個', '整理'] }, { word: '園', phrases: ['公園', '園遊會'] }, { word: '業', phrases: ['畢業', '作業'] }, { word: '論', phrases: ['不論', '討論'] }, { word: '誰', phrases: ['誰的'] }, { word: '病', phrases: ['看病', '病毒'] }, { word: '寶', phrases: ['寶藏', '寶貴'] }, { word: '送', phrases: ['送別', '傳送'] }, { word: '類', phrases: ['種類', '分類'] }, { word: '改', phrases: ['改變', '改善'] }]
+            ],
+            2: [
+                [{ word: '校', phrases: ['校園', '校慶'] }, { word: '稱', phrases: ['稱讚', '稱呼'] }, { word: '功', phrases: ['成功', '功能'] }, { word: '春', phrases: ['春捲', '春聯'] }, { word: '取', phrases: ['爭取', '取消'] }, { word: '念', phrases: ['懷念', '紀念'] }, { word: '武', phrases: ['武器', '武術'] }, { word: '救', phrases: ['救命', '急救'] }, { word: '傷', phrases: ['受傷', '傷心'] }, { word: '班', phrases: ['班規', '上班'] }, { word: '失', phrases: ['失敗', '消失'] }],
+                [{ word: '建', phrases: ['建設', '建議'] }, { word: '準', phrases: ['準備', '準時'] }, { word: '落', phrases: ['掉落', '角落'] }, { word: '輕', phrases: ['輕鬆', '年輕'] }, { word: '縣', phrases: ['嘉義縣', '縣長'] }, { word: '塊', phrases: ['一塊'] }, { word: '造', phrases: ['創造', '造型'] }, { word: '敢', phrases: ['勇敢', '不敢當'] }, { word: '孫', phrases: ['長孫', '孫中山'] }, { word: '運', phrases: ['運動', '運用'] }, { word: '腳', phrases: ['腳步', '腳印'] }],
+                [{ word: '升', phrases: ['提升', '升任'] }, { word: '草', phrases: ['草原', '潦草'] }, { word: '市', phrases: ['市場', '夜市'] }, { word: '兵', phrases: ['士兵', '兵馬俑'] }, { word: '備', phrases: ['準備', '設備'] }, { word: '試', phrases: ['嘗試', '試驗'] }, { word: '您', phrases: ['您好', '您'] }, { word: '深', phrases: ['深刻', '深厚'] }, { word: '雄', phrases: ['英雄', '雄偉'] }, { word: '古', phrases: ['古城', '古蹟'] }, { word: '越', phrases: ['超越', '越來越'] }],
+                [{ word: '船', phrases: ['乘船', '船艙'] }, { word: '界', phrases: ['世界', '眼界'] }, { word: '買', phrases: ['購買', '買票'] }, { word: '緊', phrases: ['趕緊', '緊張'] }, { word: '急', phrases: ['焦急', '急診'] }, { word: '米', phrases: ['搗米', '奈米'] }, { word: '終', phrases: ['有始有終', '終於'] }, { word: '料', phrases: ['照料', '資料'] }, { word: '店', phrases: ['飯店', '連鎖店'] }, { word: '香', phrases: ['上香', '香菜'] }, { word: '轉', phrases: ['轉變', '轉送'] }],
+                [{ word: '毛', phrases: ['毛病'] }, { word: '野', phrases: ['田野', '視野'] }, { word: '站', phrases: ['網站', '捷運站'] }, { word: '鼠', phrases: ['滑鼠', '膽小如鼠'] }, { word: '屋', phrases: ['屋頂', '預售屋'] }, { word: '列', phrases: ['系列', '陳列館'] }, { word: '練', phrases: ['磨練', '演練'] }, { word: '江', phrases: ['江山', '江湖'] }, { word: '拉', phrases: ['拉開', '拉票'] }, { word: '倍', phrases: ['加倍', '百倍'] }, { word: '穿', phrases: ['穿越', '穿透'] }],
+                [{ word: '精', phrases: ['精神', '精緻'] }, { word: '紙', phrases: ['紙鈔', '紙藝'] }, { word: '細', phrases: ['細緻', '細菌'] }, { word: '息', phrases: ['休息', '訊息'] }, { word: '客', phrases: ['訪客', '客觀'] }, { word: '掉', phrases: ['丟掉', '掉落'] }, { word: '灣', phrases: ['港灣', '谷灣'] }, { word: '燈', phrases: ['紅綠燈', '燈飾'] }, { word: '貝', phrases: ['貝殼', '寶貝'] }, { word: '驚', phrases: ['驚慌', '驚動'] }],
+                [{ word: '竟', phrases: ['竟敢', '究竟'] }, { word: '旁', phrases: ['旁邊', '兩旁'] }, { word: '排', phrases: ['排隊', '安排'] }, { word: '留', phrases: ['留意', '保留'] }, { word: '臉', phrases: ['笑臉', '臉色'] }, { word: '展', phrases: ['展開', '展覽'] }, { word: '禮', phrases: ['禮貌', '典禮'] }, { word: '周', phrases: ['周圍', '四周'] }, { word: '社', phrases: ['社會', '合作社'] }, { word: '守', phrases: ['防守', '遵守'] }],
+                [{ word: '句', phrases: ['句號'] }, { word: '語', phrases: ['語言', '語氣'] }, { word: '謝', phrases: ['感謝', '謝謝'] }, { word: '器', phrases: ['器官', '器材'] }, { word: '護', phrases: ['保護', '護照'] }, { word: '宮', phrases: ['天后宮'] }, { word: '巴', phrases: ['尾巴', '結結巴巴'] }, { word: '另', phrases: ['另外'] }, { word: '飯', phrases: ['飯店'] }, { word: '任', phrases: ['任何', '擔任'] }],
+                [{ word: '商', phrases: ['商店', '商業'] }, { word: '具', phrases: ['工具', '具有'] }, { word: '遊', phrases: ['旅遊', '遊客'] }, { word: '洞', phrases: ['洞穴', '山洞'] }, { word: '歌', phrases: ['歌唱', '歌聲'] }, { word: '響', phrases: ['響起', '影響'] }, { word: '視', phrases: ['視力', '重視'] }, { word: '鐵', phrases: ['鐵面無私', '鐵人'] }, { word: '忽', phrases: ['忽然', '忽略'] }, { word: '仍', phrases: ['仍然', '仍舊'] }],
+                [{ word: '歲', phrases: ['歲月', '壓歲錢'] }, { word: '右', phrases: ['右邊'] }, { word: '希', phrases: ['希望'] }, { word: '座', phrases: ['座位', '座標'] }, { word: '羊', phrases: ['牧羊'] }, { word: '停', phrases: ['停止', '停留'] }, { word: '願', phrases: ['願望', '願意'] }, { word: '筆', phrases: ['筆記', '筆直'] }, { word: '居', phrases: ['居住', '鄰居'] }, { word: '助', phrases: ['助手', '幫助'] }]
+            ],
+            3: [
+                [{ word: '圓', phrases: ['圓形', '拾圓'] }, { word: '號', phrases: ['記號', '符號'] }, { word: '青', phrases: ['青草', '青春'] }, { word: '鳥', phrases: ['鳥籠', '鳥瞰'] }, { word: '啦', phrases: ['嘩啦啦', '啦啦隊'] }, { word: '設', phrases: ['設計', '建設'] }, { word: '殺', phrases: ['殺傷', '殺價'] }, { word: '雞', phrases: ['公雞', '炸雞'] }, { word: '段', phrases: ['線段', '時段'] }, { word: '男', phrases: ['男子漢', '長男'] }, { word: '呼', phrases: ['歡呼', '招呼'] }],
+                [{ word: '甲', phrases: ['甲等', '盔甲'] }, { word: '英', phrases: ['英俊', '英國'] }, { word: '漸', phrases: ['逐漸', '漸快'] }, { word: '慢', phrases: ['緩慢', '傲慢'] }, { word: '境', phrases: ['環境', '國境'] }, { word: '府', phrases: ['政府', '學府'] }, { word: '識', phrases: ['認識', '知識'] }, { word: '初', phrases: ['起初', '初一'] }, { word: '錯', phrases: ['錯誤', '錯過'] }, { word: '貓', phrases: ['貓頭鷹', '貓熊'] }, { word: '員', phrases: ['演員', '團員'] }],
+                [{ word: '麗', phrases: ['美麗', '華麗'] }, { word: '福', phrases: ['祝福', '福利'] }, { word: '領', phrases: ['領取', '領導'] }, { word: '嚇', phrases: ['驚嚇', '嚇唬'] }, { word: '推', phrases: ['推開', '推選'] }, { word: '倒', phrases: ['倒退', '倒立'] }, { word: '順', phrases: ['順便', '順從'] }, { word: '夠', phrases: ['足夠', '能夠'] }, { word: '村', phrases: ['鄉村', '村長'] }, { word: '叔', phrases: ['叔叔', '小叔'] }, { word: '遇', phrases: ['遇見', '待遇'] }],
+                [{ word: '易', phrases: ['交易', '容易'] }, { word: '隊', phrases: ['路隊', '棒球隊'] }, { word: '鄉', phrases: ['故鄉', '鄉親'] }, { word: '舉', phrases: ['選舉', '舉重'] }, { word: '量', phrases: ['測量', '商量'] }, { word: '賣', phrases: ['買賣', '賣力'] }, { word: '喝', phrases: ['喝茶', '喝醉'] }, { word: '格', phrases: ['價格', '品格'] }, { word: '雙', phrases: ['雙胞胎', '一雙鞋'] }, { word: '靜', phrases: ['平靜', '安靜'] }, { word: '趙', phrases: ['完璧歸趙', '趙同學'] }],
+                [{ word: '克', phrases: ['克服', '公克'] }, { word: '驗', phrases: ['驗血', '靈驗'] }, { word: '程', phrases: ['啟程', '路程'] }, { word: '族', phrases: ['家族', '水族館'] }, { word: '葉', phrases: ['葉子', '葉片'] }, { word: '兄', phrases: ['兄弟', '兄長'] }, { word: '待', phrases: ['等待', '對待'] }, { word: '亂', phrases: ['混亂', '亂來'] }, { word: '追', phrases: ['追趕', '追思'] }, { word: '冷', phrases: ['寒冷', '冷言冷語'] }, { word: '派', phrases: ['派遣', '蘋果派'] }],
+                [{ word: '祖', phrases: ['祖父', '始祖'] }, { word: '唱', phrases: ['唱歌', '唱名'] }, { word: '陳', phrases: ['陳列', '陳年'] }, { word: '佛', phrases: ['佛祖', '佛心'] }, { word: '伯', phrases: ['伯父', '老伯伯'] }, { word: '油', phrases: ['沙拉油', '路油油'] }, { word: '戲', phrases: ['演戲', '戲弄'] }, { word: '注', phrases: ['專注', '注水'] }, { word: '首', phrases: ['首先', '首領'] }, { word: '豬', phrases: ['豬肉', '豬八戒'] }],
+                [{ word: '破', phrases: ['破壞', '破費'] }, { word: '堂', phrases: ['廳堂', '堂哥'] }, { word: '醫', phrases: ['醫生', '醫院'] }, { word: '相', phrases: ['相同', '互相'] }, { word: '晴', phrases: ['眼睛'] }, { word: '肉', phrases: ['肌肉', '果肉'] }, { word: '講', phrases: ['講話', '講究'] }, { word: '顧', phrases: ['照顧', '回顧'] }, { word: '切', phrases: ['切菜', '切入'] }, { word: '景', phrases: ['風景', '景仰'] }],
+                [{ word: '院', phrases: ['醫院', '庭院'] }, { word: '枝', phrases: ['樹枝', '花枝'] }, { word: '哭', phrases: ['哭泣', '哭喪著臉'] }, { word: '蓋', phrases: ['鍋蓋', '蓋章'] }, { word: '斷', phrases: ['切斷', '診斷'] }, { word: '察', phrases: ['觀察', '警察'] }, { word: '板', phrases: ['黑板', '古板'] }, { word: '假', phrases: ['假裝', '假髮'] }, { word: '團', phrases: ['紙團', '社團'] }, { word: '壞', phrases: ['破壞', '壞人'] }],
+                [{ word: '天', phrases: ['天空', '今天'] }, { word: '空', phrases: ['天空', '空氣'] }, { word: '氣', phrases: ['生氣', '天氣'] }, { word: '生', phrases: ['學生', '生活'] }],
+                [{ word: '活', phrases: ['活動', '生活'] }, { word: '動', phrases: ['動物', '運動'] }] 
+            ],
+            4: [
+                [{ word: '銀', phrases: ['銀河', '銀白'] }, { word: '治', phrases: ['治療', '政治'] }, { word: '盡', phrases: ['盡情', '用盡'] }, { word: '紀', phrases: ['紀念', '年紀'] }, { word: '左', phrases: ['左右', '相左'] }, { word: '恐', phrases: ['恐怕', '恐龍'] }, { word: '齊', phrases: ['齊聲', '整齊'] }, { word: '姑', phrases: ['姑姑', '尼姑'] }, { word: '洗', phrases: ['乾洗', '洗禮'] }, { word: '忍', phrases: ['忍不住', '殘忍'] }, { word: '封', phrases: ['封面', '冰封'] }],
+                [{ word: '導', phrases: ['指導', '導遊'] }, { word: '洲', phrases: ['亞洲', '沙洲'] }, { word: '牙', phrases: ['門牙', '西班牙'] }, { word: '政', phrases: ['政府', '政治'] }, { word: '康', phrases: ['健康', '小康'] }, { word: '淨', phrases: ['純淨', '乾淨'] }, { word: '勇', phrases: ['勇敢', '勇士'] }, { word: '顏', phrases: ['顏色', '容顏'] }, { word: '引', phrases: ['吸引', '引導'] }, { word: '背', phrases: ['背包', '背起'] }, { word: '參', phrases: ['參加'] }],
+                [{ word: '松', phrases: ['松樹'] }, { word: '替', phrases: ['替代', '替身'] }, { word: '顯', phrases: ['明顯', '顯示'] }, { word: '拜', phrases: ['拜託', '拜年'] }, { word: '姓', phrases: ['姓名', '百姓'] }, { word: '靠', phrases: ['靠山', '靠近'] }, { word: '盤', phrases: ['盤子', '盤查'] }, { word: '暗', phrases: ['暗地', '暗示'] }, { word: '君', phrases: ['君主', '君子'] }, { word: '免', phrases: ['免費', '罷免'] }, { word: '袋', phrases: ['口袋', '袋鼠'] }],
+                [{ word: '猴', phrases: ['猴急', '潑猴'] }, { word: '搖', phrases: ['招搖', '動搖'] }, { word: '劉', phrases: ['劉海', '劉備'] }, { word: '樓', phrases: ['樓房', '騎樓'] }, { word: '投', phrases: ['投靠', '投降'] }, { word: '抓', phrases: ['抓癢', '抓緊'] }, { word: '存', phrases: ['儲存', '保存'] }, { word: '製', phrases: ['製作', '特製'] }, { word: '藥', phrases: ['服藥', '藥局'] }, { word: '短', phrases: ['短暫', '簡短'] }, { word: '冰', phrases: ['冰冷', '冰雪聰明'] }],
+                [{ word: '既', phrases: ['既然', '既定'] }, { word: '朵', phrases: ['花朵', '大快朵頤'] }, { word: '負', phrases: ['抱負', '負責'] }, { word: '夢', phrases: ['夢想', '白日夢'] }, { word: '沙', phrases: ['泥沙', '沙發'] }, { word: '互', phrases: ['互助', '互動'] }, { word: '賽', phrases: ['比賽', '接力賽'] }, { word: '級', phrases: ['年級', '班級'] }, { word: '責', phrases: ['負責', '責罵'] }, { word: '勝', phrases: ['勝利', '勝過'] }, { word: '附', phrases: ['附近', '附著'] }],
+                [{ word: '連', phrases: ['連接', '一連'] }, { word: '趣', phrases: ['興趣', '趣事'] }, { word: '肯', phrases: ['肯定', '不肯'] }, { word: '嘴', phrases: ['嘴巴', '多嘴'] }, { word: '賞', phrases: ['欣賞', '賞賜'] }, { word: '孔', phrases: ['針孔', '打孔'] }, { word: '仔', phrases: ['仔細', '菜仔'] }, { word: '低', phrases: ['高低', '低調'] }, { word: '休', phrases: ['休息', '休閒活動'] }, { word: '談', phrases: ['談話', '談論'] }],
+                [{ word: '乙', phrases: ['乙等'] }, { word: '吸', phrases: ['呼吸', '吸引'] }, { word: '波', phrases: ['波浪', '一波'] }, { word: '衛', phrases: ['衛生', '衛兵'] }, { word: '蟲', phrases: ['昆蟲', '螢火蟲'] }, { word: '財', phrases: ['財富', '財產'] }, { word: '床', phrases: ['病床', '河床'] }, { word: '菜', phrases: ['菜單', '菜園'] }, { word: '乾', phrases: ['乾燥', '乾淨'] }, { word: '陸', phrases: ['陸地', '著陸'] }],
+                [{ word: '捉', phrases: ['捕捉', '捉迷藏'] }, { word: '換', phrases: ['交換', '變換'] }, { word: '吹', phrases: ['吹風', '吹牛'] }, { word: '貴', phrases: ['珍貴', '貴族'] }, { word: '止', phrases: ['停止', '阻止'] }, { word: '醒', phrases: ['提醒', '叫醒'] }, { word: '爬', phrases: ['爬行', '爬山'] }, { word: '秋', phrases: ['秋天', '秋風'] }, { word: '樂', phrases: ['快樂', '樂意'] }, { word: '鐘', phrases: ['分鐘', '打鐘'] }],
+                [{ word: '迎', phrases: ['歡迎', '迎接'] }, { word: '敬', phrases: ['敬佩', '敬上'] }, { word: '鬧', phrases: ['熱鬧', '吵鬧'] }, { word: '志', phrases: ['志工', '意志'] }, { word: '究', phrases: ['研究', '終究'] }, { word: '寬', phrases: ['寬廣', '寬敞'] }, { word: '州', phrases: ['杭州', '湄州島'] }, { word: '楚', phrases: ['清楚', '苦楚'] }, { word: '端', phrases: ['端詳', '尖端'] }, { word: '層', phrases: ['大氣層', '層層'] }],
+                [{ word: '專', phrases: ['專心', '專題'] }, { word: '險', phrases: ['危險', '探險'] }, { word: '歷', phrases: ['經歷', '歷史'] }, { word: '哈', phrases: ['哈欠', '哈哈'] }, { word: '閃', phrases: ['閃亮', '閃電'] }, { word: '戶', phrases: ['窗戶', '戶外'] }, { word: '臨', phrases: ['臨時', '來臨'] }, { word: '乘', phrases: ['搭乘', '乘涼'] }, { word: '招', phrases: ['打招呼', '招待'] }, { word: '藏', phrases: ['收藏', '隱藏'] }]
+            ],
+            5: [
+                [{ word: '植', phrases: ['植物', '種植'] }, { word: '錄', phrases: ['記錄', '錄取'] }, { word: '勞', phrases: ['勞力', '功勞'] }, { word: '鎮', phrases: ['小鎮', '鎮壓'] }, { word: '抱', phrases: ['懷抱', '抱怨'] }, { word: '幹', phrases: ['樹幹', '能幹'] }, { word: '舞', phrases: ['舞蹈', '揮舞'] }, { word: '興', phrases: ['高興', '興趣'] }, { word: '困', phrases: ['困難', '困住'] }, { word: '鄭', phrases: ['鄭重', '鄭成功'] }, { word: '棒', phrases: ['木棒', '真棒'] }],
+                [{ word: '游', phrases: ['游泳池', '遊民'] }, { word: '竹', phrases: ['竹竿', '新竹'] }, { word: '冬', phrases: ['冬眠', '寒冬'] }, { word: '辛', phrases: ['辛苦', '辛辣'] }, { word: '印', phrases: ['印章', '印象'] }, { word: '散', phrases: ['散步', '分散'] }, { word: '懂', phrases: ['懂得', '懂事'] }, { word: '莊', phrases: ['村莊', '莊重'] }, { word: '科', phrases: ['科目', '科學'] }, { word: '躲', phrases: ['躲藏', '躲避'] }, { word: '娃', phrases: ['小娃娃', '夏娃'] }],
+                [{ word: '蓮', phrases: ['蓮花', '蓮霧'] }, { word: '妙', phrases: ['美妙', '曼妙'] }, { word: '蛋', phrases: ['雞蛋', '搗蛋'] }, { word: '集', phrases: ['集合', '收集'] }, { word: '館', phrases: ['博物館', '圖書館'] }, { word: '藍', phrases: ['藍色', '藍縷'] }, { word: '彩', phrases: ['色彩', '摸彩'] }, { word: '窗', phrases: ['門窗', '窗口'] }, { word: '桌', phrases: ['書桌', '桌布'] }, { word: '壓', phrases: ['壓力', '欺壓'] }, { word: '敗', phrases: ['失敗', '打敗'] }],
+                [{ word: '營', phrases: ['露營', '營業'] }, { word: '旅', phrases: ['旅館', '旅行'] }, { word: '鹿', phrases: ['鹿角', '鹿草'] }, { word: '絲', phrases: ['細絲', '絲毫'] }, { word: '異', phrases: ['異常', '怪異'] }, { word: '擊', phrases: ['打擊', '攻擊'] }, { word: '退', phrases: ['退步', '後退'] }, { word: '瓶', phrases: ['酒瓶', '瓶頸'] }, { word: '鄰', phrases: ['鄰居', '鄰近'] }, { word: '悄', phrases: ['悄悄話', '悄悄'] }, { word: '忘', phrases: ['備忘錄', '健忘'] }],
+                [{ word: '堆', phrases: ['一堆', '堆積'] }, { word: '標', phrases: ['標誌', '標籤'] }, { word: '永', phrases: ['永遠', '永別'] }, { word: '廟', phrases: ['廟會', '五臟廟'] }, { word: '戴', phrases: ['配戴', '穿戴'] }, { word: '堅', phrases: ['堅固', '堅強'] }, { word: '牆', phrases: ['牆角', '圍牆'] }, { word: '茶', phrases: ['泡茶', '茶包'] }, { word: '透', phrases: ['透氣', '透過'] }, { word: '材', phrases: ['材料', '器材'] }, { word: '掛', phrases: ['掛號', '掛鐘'] }],
+                [{ word: '章', phrases: ['蓋章', '私章'] }, { word: '盒', phrases: ['禮盒', '保鮮盒'] }, { word: '詩', phrases: ['詩人', '詩選'] }, { word: '聞', phrases: ['聞名', '聞訊'] }, { word: '拍', phrases: ['大拍賣', '慢半拍'] }, { word: '哇', phrases: ['哇哇叫', '哇哇'] }, { word: '夏', phrases: ['夏令營', '炎炎夏日'] }, { word: '態', phrases: ['動態', '態度'] }, { word: '熟', phrases: ['熟練', '熟悉'] }, { word: '箱', phrases: ['行李箱', '紙箱'] }, { word: '街', phrases: ['老街', '街口'] }],
+                [{ word: '針', phrases: ['針對', '胸針'] }, { word: '廠', phrases: ['廠房', '廠商'] }, { word: '伸', phrases: ['延伸', '伸縮'] }, { word: '恩', phrases: ['感恩', '恩惠'] }, { word: '種', phrases: ['播種', '絕種'] }, { word: '危', phrases: ['危機', '危害'] }, { word: '季', phrases: ['季節', '旺季'] }, { word: '雪', phrases: ['冰天雪地', '雪白'] }, { word: '沖', phrases: ['沖泡', '興沖沖'] }, { word: '寒', phrases: ['寒冷', '貧寒'] }, { word: '溪', phrases: ['溪谷', '溪頭'] }],
+                [{ word: '池', phrases: ['水池', '化糞池'] }, { word: '弄', phrases: ['戲弄', '撥弄'] }, { word: '欣', phrases: ['欣喜', '欣賞'] }, { word: '烏', phrases: ['烏雲密布', '烏鴉嘴'] }, { word: '淚', phrases: ['淚汪汪', '淚痕'] }, { word: '橋', phrases: ['橋梁', '便橋'] }, { word: '探', phrases: ['探親', '探頭'] }, { word: '尊', phrases: ['尊敬', '尊長'] }, { word: '擺', phrases: ['擺設', '擺臉色'] }, { word: '岸', phrases: ['海岸線', '靠岸'] }, { word: '湖', phrases: ['湖泊', '湖光山色'] }],
+                [{ word: '輪', phrases: ['輪胎', '輪流'] }, { word: '省', phrases: ['節省', '省水'] }, { word: '搬', phrases: ['搬運', '搬弄口舌'] }, { word: '顆', phrases: ['顆粒', '一顆糖果'] }, { word: '尤', phrases: ['尤其', '怨天尤人'] }, { word: '途', phrases: ['旅途', '用途'] }, { word: '抬', phrases: ['抬高', '抬頭挺胸'] }, { word: '麻', phrases: ['麻煩', '麻醉'] }, { word: '舊', phrases: ['破舊', '懷舊'] }, { word: '昨', phrases: ['昨天', '昨夜'] }, { word: '按', phrases: ['按鍵', '按照'] }],
+                [{ word: '架', phrases: ['書架', '架設'] }, { word: '隔', phrases: ['隔壁', '隔離'] }, { word: '滴', phrases: ['滴落', '點滴'] }, { word: '鮮', phrases: ['新鮮', '鮮豔'] }, { word: '獵', phrases: ['獵物', '獵取'] }, { word: '猛', phrases: ['猛烈', '凶猛'] }, { word: '珠', phrases: ['露珠', '彈珠'] }, { word: '遍', phrases: ['普遍', '遍布'] }, { word: '壯', phrases: ['強壯', '茁壯'] }, { word: '秀', phrases: ['優秀', '清秀'] }],
+                [{ word: '鼓', phrases: ['鼓勵', '鼓掌'] }, { word: '腿', phrases: ['盤腿', '跑腿'] }, { word: '箭', phrases: ['射箭', '箭靶'] }, { word: '餓', phrases: ['挨餓', '飢餓'] }, { word: '迷', phrases: ['迷路', '著迷'] }, { word: '猜', phrases: ['猜謎', '猜疑'] }, { word: '勸', phrases: ['規勸', '勸募'] }, { word: '配', phrases: ['配合', '分配'] }, { word: '巨', phrases: ['巨星', '巨變'] }, { word: '桃', phrases: ['壽桃', '桃符'] }]
+            ]
+        };
+
+        const LOCAL_STORAGE_KEY_HISTORY = 'wordAdventure_history';
+        const LOCAL_STORAGE_KEY_SETTINGS = 'wordAdventure_settings';
+
+        function App() {
+            const [loading, setLoading] = useState(true);
+            const [view, setView] = useState('login'); 
+            const [showSettings, setShowSettings] = useState(false);
+            const [voices, setVoices] = useState([]);
+
+            const [playerName, setPlayerName] = useState('');
+            const [playerHistory, setPlayerHistory] = useState({});
+            const [appSettings, setAppSettings] = useState({ 
+                gameMode: 'normal', 
+                autoRead: false,
+                fontSizeLevel: 1,
+                voiceRate: 0.85,
+                voiceURI: '',
+                timerDuration: 60
+            });
+            
+            const [activeVol, setActiveVol] = useState(1);
+            const [activeLevel, setActiveLevel] = useState(1);
+            const [gameResult, setGameResult] = useState(null); 
+            const [selectedVol, setSelectedVol] = useState(1); 
+
+            useEffect(() => {
+                const sizes = ['14px', '16px', '20px'];
+                const level = appSettings.fontSizeLevel !== undefined ? appSettings.fontSizeLevel : 1;
+                document.documentElement.style.fontSize = sizes[level];
+            }, [appSettings.fontSizeLevel]);
+
+            useEffect(() => {
+                const loadVoices = () => {
+                    let v = window.speechSynthesis.getVoices();
+                    setVoices(v.filter(voice => voice.lang.includes('zh') || voice.lang.includes('cmn')));
+                };
+                loadVoices();
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }, []);
+
+            useEffect(() => {
+                try {
+                    const localHist = localStorage.getItem(LOCAL_STORAGE_KEY_HISTORY);
+                    if (localHist) setPlayerHistory(JSON.parse(localHist));
+                    const localSet = localStorage.getItem(LOCAL_STORAGE_KEY_SETTINGS);
+                    if (localSet) setAppSettings(JSON.parse(localSet));
+                } catch (e) {
+                    console.error("Local Storage Error", e);
+                }
+                setLoading(false);
+            }, []);
+
+            const speak = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'zh-TW';
+                    utterance.rate = appSettings.voiceRate !== undefined ? appSettings.voiceRate : 0.85;
+
+                    if (appSettings.voiceURI) {
+                        const selectedVoice = voices.find(v => v.voiceURI === appSettings.voiceURI);
+                        if (selectedVoice) {
+                            utterance.voice = selectedVoice;
+                        }
+                    }
+
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            const playSuccessSound = () => {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    osc.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.1);
+                } catch(e) {}
+            };
+
+            const playFailSound = () => {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    osc.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.2);
+                } catch(e) {}
+            }
+
+            const playCelebrationSound = () => {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const playNote = (freq, startTime, duration) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, startTime);
+                        gain.gain.setValueAtTime(0.1, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    };
+                    const now = ctx.currentTime;
+                    playNote(523.25, now, 0.15); // C5
+                    playNote(659.25, now + 0.15, 0.15); // E5
+                    playNote(783.99, now + 0.30, 0.15); // G5
+                    playNote(1046.50, now + 0.45, 0.40); // C6
+                } catch(e) {}
+            };
+
+            const getBestScore = (hist, vol, level) => {
+                if (!hist) return null;
+                let best = -1;
+                Object.entries(hist).forEach(([key, data]) => {
+                    if (key.startsWith(`v${vol}l${level}_`)) {
+                        if (data.score > best) best = data.score;
+                    }
+                });
+                return best === -1 ? null : best;
+            };
+
+            const toggleSetting = (key, val) => {
+                const newSettings = { ...appSettings, [key]: val !== undefined ? val : !appSettings[key] };
+                setAppSettings(newSettings);
+                localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(newSettings));
+            };
+
+            const renderHeader = (pageTitle, showBack = true, backAction = () => setView('home')) => (
+                <header className="w-full bg-white shadow-md py-4 px-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between mb-8 sticky top-0 z-40 gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
+                        {showBack && (
+                            <button onClick={backAction} className="px-3 py-2 md:px-4 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-slate-700 shrink-0 text-sm md:text-base">
+                                返回
+                            </button>
+                        )}
+                        <div className="flex flex-col">
+                            <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
+                                <h1 className="text-xl md:text-2xl font-black text-blue-900 tracking-wide">識字大冒險</h1>
+                                <span className="text-xs md:text-sm font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded">嘉義縣識字學習系統教材</span>
+                            </div>
+                            {pageTitle && (
+                                <h2 className="text-sm md:text-lg font-bold text-slate-600 mt-1">{pageTitle}</h2>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-2 md:gap-4 shrink-0">
+                        <button onClick={() => setShowSettings(true)} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-2 font-bold text-sm md:text-base">
+                            <IconSettings /> <span className="hidden sm:inline">遊戲設定</span>
+                        </button>
+                    </div>
+                </header>
+            );
+
+            const renderContent = () => {
+                if (loading) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold">系統載入中...</div>;
+
+                if (view === 'login') {
+                    const handleLogin = (e) => {
+                        e.preventDefault();
+                        const name = e.target.pname.value.trim();
+                        if (name) {
+                            setPlayerName(name);
+                            setView('home');
+                        }
+                    };
+                    return (
+                        <div className="w-full flex-1 flex flex-col items-center justify-center px-4">
+                            {renderHeader('登入大冒險', false)}
+                            <form onSubmit={handleLogin} className="bg-white p-6 md:p-10 rounded-3xl shadow-xl w-full max-w-md flex flex-col gap-6 text-center mt-4">
+                                <div className="text-6xl md:text-8xl mb-2">🚀</div>
+                                <h2 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">請輸入你的名字</h2>
+                                <input name="pname" type="text" placeholder="你的名字..." required className="text-xl md:text-2xl p-4 border-2 rounded-xl text-center w-full focus:outline-none focus:border-blue-500" autoFocus />
+                                <button type="submit" className="bg-blue-500 text-white font-bold text-xl md:text-2xl py-4 rounded-xl hover:bg-blue-600 transition shadow-md mt-2 md:mt-4">開始挑戰</button>
+                            </form>
+                        </div>
+                    );
+                }
+
+                if (view === 'home') {
+                    const startGame = (v, l) => {
+                        setActiveVol(v);
+                        setActiveLevel(l);
+                        setView('gamePlay');
+                    };
+
+                    return (
+                        <div className="w-full flex-1 flex flex-col items-center">
+                            {renderHeader(`你好，${playerName}！請選擇關卡`, true, () => setView('login'))}
+                            
+                            <div className="w-full max-w-5xl px-4 md:px-6">
+                                <div className="flex gap-2 md:gap-4 overflow-x-auto pb-6 custom-scrollbar">
+                                    {[1, 2, 3, 4, 5].map(v => {
+                                        const isActive = v === selectedVol;
+                                        return (
+                                            <button key={v} onClick={() => setSelectedVol(v)} className={`flex-shrink-0 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-lg md:text-2xl transition-all ${isActive ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 shadow border-2 border-blue-100 hover:bg-blue-50'}`}>
+                                                第 {v} 冊
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 mt-4 md:mt-6 pb-20">
+                                    {GAME_DATA[selectedVol]?.map((levelWords, index) => {
+                                        const l = index + 1;
+                                        const hasWords = levelWords && levelWords.length > 0;
+                                        const isUnlocked = hasWords; 
+                                        const bestScore = getBestScore(playerHistory, selectedVol, l);
+
+                                        return (
+                                            <button 
+                                                key={l} 
+                                                disabled={!isUnlocked} 
+                                                onClick={() => startGame(selectedVol, l)} 
+                                                className={`relative flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl md:rounded-3xl border-4 transition-all h-32 md:h-40
+                                                    ${isUnlocked ? 'border-green-400 bg-white hover:bg-green-50 hover:scale-105 shadow-md cursor-pointer' : 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+                                            >
+                                                {!isUnlocked ? (
+                                                    <>
+                                                        <div className="mb-1 md:mb-2 opacity-50 scale-75 md:scale-100"><IconLock /></div>
+                                                        <span className="text-lg md:text-xl font-bold">第 {l} 關</span>
+                                                        <span className="text-xs md:text-sm mt-1 text-slate-400">(敬請期待)</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="text-xl md:text-2xl font-bold text-green-800 mb-1 md:mb-2">第 {l} 關</span>
+                                                        {bestScore !== null ? (
+                                                            <div className="mt-1 md:mt-2 flex flex-col items-center">
+                                                                <span className="text-[10px] md:text-xs text-slate-500 font-bold mb-1">最高得分</span>
+                                                                <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full text-sm md:text-lg font-bold ${bestScore >= 80 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                                                                    {bestScore}%
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="mt-1 md:mt-2 px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-blue-100 text-blue-700 text-xs md:text-sm font-bold">
+                                                                新挑戰 ⭐
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (view === 'gamePlay') {
+                    return (
+                        <div className="w-full flex-1 flex flex-col items-center bg-slate-50">
+                            <GamePlayView 
+                                vol={activeVol} 
+                                level={activeLevel} 
+                                levelWords={GAME_DATA[activeVol][activeLevel - 1]} 
+                                allWordsInVol={GAME_DATA[activeVol].flat()} 
+                                appSettings={appSettings}
+                                onFinish={(score, mistakes, endReason = false, timeSpent = 0) => {
+                                    setGameResult({ score, mistakes, endReason, timeSpent });
+                                    setView('gameResult');
+                                }}
+                                onCancel={() => setView('home')}
+                                speak={speak}
+                                playSuccess={playSuccessSound}
+                                playFail={playFailSound}
+                                playCelebration={playCelebrationSound}
+                            />
+                        </div>
+                    );
+                }
+
+                if (view === 'gameResult') {
+                    const { score, mistakes, endReason, timeSpent } = gameResult;
+                    const isPass = !endReason && score >= 80;
+
+                    const formatTime = (seconds) => {
+                        const m = Math.floor(seconds / 60);
+                        const s = seconds % 60;
+                        if (m > 0) return `${m} 分 ${s} 秒`;
+                        return `${s} 秒`;
+                    };
+
+                    const handleSaveAndNext = async () => {
+                        const historyKey = `v${activeVol}l${activeLevel}_${Date.now()}`;
+                        const newHistory = { ...playerHistory, [historyKey]: { score, mistakes: mistakes.map(m=>m.target.word), timeSpent, date: new Date().toISOString() } };
+                        setPlayerHistory(newHistory);
+                        localStorage.setItem(LOCAL_STORAGE_KEY_HISTORY, JSON.stringify(newHistory));
+                        setView('home');
+                    };
+
+                    const downloadScorecard = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 800;
+                        canvas.height = 600;
+                        const ctx = canvas.getContext('2d');
+
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        ctx.fillStyle = '#1e3a8a';
+                        ctx.font = 'bold 56px sans-serif'; 
+                        ctx.textAlign = 'center';
+                        ctx.fillText('識字大冒險', 400, 85);
+
+                        ctx.fillStyle = '#3b82f6';
+                        ctx.fillRect(100, 115, 600, 4);
+
+                        ctx.fillStyle = '#334155';
+                        ctx.font = 'bold 36px sans-serif';
+                        ctx.fillText(`挑戰者：${playerName}`, 400, 180);
+                        
+                        ctx.font = '32px sans-serif';
+                        ctx.fillText(`挑戰關卡：第 ${activeVol} 冊 / 第 ${activeLevel} 關`, 400, 240);
+                        
+                        const modeText = appSettings.gameMode === 'normal' ? '一般模式' : appSettings.gameMode === 'heart' ? '愛心制度' : appSettings.gameMode === 'timer' ? '計時模式' : '交卷模式';
+                        ctx.fillText(`遊戲模式：${modeText}`, 400, 300);
+                        ctx.fillText(`花費時間：${formatTime(timeSpent)}`, 400, 360);
+
+                        ctx.font = 'bold 72px sans-serif';
+                        if (endReason === 'heart') {
+                            ctx.fillStyle = '#ef4444';
+                            ctx.fillText('挑戰失敗 (愛心耗盡)', 400, 450);
+                        } else if (endReason === 'timeout') {
+                            ctx.fillStyle = '#ef4444';
+                            ctx.fillText('挑戰失敗 (時間到)', 400, 450);
+                        } else {
+                            ctx.fillStyle = score >= 80 ? '#16a34a' : '#ea580c';
+                            ctx.fillText(`得分：${score} 分`, 400, 450);
+                        }
+
+                        ctx.font = '24px sans-serif';
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.fillText(`測驗時間：${new Date().toLocaleString('zh-TW')}`, 400, 540);
+
+                        const link = document.createElement('a');
+                        link.download = `${playerName}_第${activeVol}冊第${activeLevel}關_成績單.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    };
+
+                    return (
+                        <div className="w-full flex-1 flex flex-col items-center justify-center p-4 pb-20 overflow-y-auto">
+                            <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-2xl flex flex-col items-center text-center border-t-8 border-t-blue-500 my-auto">
+                                {endReason === 'heart' ? (
+                                    <>
+                                        <div className="text-6xl md:text-8xl mb-4 md:mb-6">💔</div>
+                                        <h2 className="text-3xl md:text-5xl font-bold mb-2 md:mb-4 text-red-500">愛心耗盡，挑戰失敗！</h2>
+                                        <p className="text-lg md:text-2xl font-bold text-slate-600 mb-6 md:mb-8">已經錯了3題囉，請重新開始挑戰</p>
+                                    </>
+                                ) : endReason === 'timeout' ? (
+                                    <>
+                                        <div className="text-6xl md:text-8xl mb-4 md:mb-6">⏰</div>
+                                        <h2 className="text-3xl md:text-5xl font-bold mb-2 md:mb-4 text-red-500">時間到，挑戰失敗！</h2>
+                                        <p className="text-lg md:text-2xl font-bold text-slate-600 mb-6 md:mb-8">你花費了 {formatTime(timeSpent)}，請把握時間重新挑戰</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="text-6xl md:text-8xl mb-4 md:mb-6">{isPass ? '🎉' : '💪'}</div>
+                                        <h2 className={`text-3xl md:text-5xl font-bold mb-2 md:mb-4 ${isPass ? 'text-green-600' : 'text-orange-500'}`}>
+                                            {isPass ? (score === 100 ? '完美過關！100%' : '闖關成功！') : '再接再厲！'}
+                                        </h2>
+                                        <p className="text-xl md:text-3xl font-bold text-slate-700 mb-2">
+                                            本次正確率：<span className={isPass ? 'text-green-600' : 'text-orange-500'}>{score}%</span>
+                                        </p>
+                                        <p className="text-lg font-bold text-slate-500 mb-6 md:mb-8">
+                                            ⏱️ 花費時間：{formatTime(timeSpent)}
+                                        </p>
+                                    </>
+                                )}
+
+                                {mistakes.length > 0 && (
+                                    <div className="w-full text-left bg-orange-50 p-4 md:p-6 rounded-2xl mb-6 md:mb-8 border border-orange-200">
+                                        <h3 className="text-xl md:text-2xl font-bold text-orange-800 mb-3 md:mb-4 border-b-2 border-orange-200 pb-2 flex items-center gap-2">
+                                            <span>📝</span> 錯題回顧
+                                        </h3>
+                                        <div className="flex flex-col gap-3">
+                                            {mistakes.map((m, i) => (
+                                                <div key={i} className="flex items-center justify-between bg-white p-3 md:p-4 rounded-xl shadow-sm border border-orange-100">
+                                                    <div className="flex items-center gap-3 md:gap-4 flex-wrap">
+                                                        <span className="text-3xl md:text-4xl font-bold text-red-500">{m.target.word}</span>
+                                                        <span className="text-lg md:text-2xl text-slate-700 font-bold">{m.target.phrases.join(' , ')}</span>
+                                                    </div>
+                                                    <button onClick={() => speak([m.target.word, ...m.target.phrases].join('，'))} className="p-2 md:p-3 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 shrink-0" title="朗讀此字詞">
+                                                        <IconSpeaker />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 w-full">
+                                    <button onClick={downloadScorecard} className="flex-1 py-3 md:py-4 bg-purple-100 text-purple-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-purple-200 transition border-2 border-purple-200">
+                                        📥 下載成績單
+                                    </button>
+                                    <button onClick={() => setView('gamePlay')} className="flex-1 py-3 md:py-4 bg-blue-100 text-blue-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-blue-200 transition border-2 border-blue-200">
+                                        🔄 重新挑戰
+                                    </button>
+                                    <button onClick={handleSaveAndNext} className="flex-1 py-3 md:py-4 bg-green-500 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-green-600 transition shadow-lg">
+                                        🏠 儲存並回選單
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+                
+                return null;
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen bg-slate-50 relative">
+                    <div className="flex-1 flex flex-col">
+                        {renderContent()}
+                    </div>
+                    
+                    {showSettings && (
+                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                            <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                                <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-slate-800 flex items-center gap-2">
+                                    <IconSettings /> 遊戲設定
+                                </h2>
+                                
+                                <div className="flex flex-col gap-4 md:gap-6">
+                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-3">
+                                        <span className="text-lg font-bold text-slate-700 border-b pb-2">畫面設定</span>
+                                        <div className="flex items-center justify-between mt-1">
+                                            <span className="font-bold text-slate-600 text-sm md:text-base">字體大小</span>
+                                            <div className="flex gap-2">
+                                                <button onClick={()=>toggleSetting('fontSizeLevel', 0)} className={`px-3 py-1 rounded font-bold transition ${appSettings.fontSizeLevel===0?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A-</button>
+                                                <button onClick={()=>toggleSetting('fontSizeLevel', 1)} className={`px-3 py-1 rounded font-bold transition ${appSettings.fontSizeLevel===1?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A</button>
+                                                <button onClick={()=>toggleSetting('fontSizeLevel', 2)} className={`px-3 py-1 rounded font-bold transition ${appSettings.fontSizeLevel===2?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-4">
+                                        <span className="text-lg font-bold text-slate-700 border-b pb-2">語音設定</span>
+                                        <label className="flex items-center justify-between cursor-pointer group">
+                                            <span className="font-bold text-slate-600 text-sm md:text-base group-hover:text-blue-600 transition">自動報讀題目</span>
+                                            <input type="checkbox" checked={appSettings.autoRead} onChange={() => toggleSetting('autoRead')} className="w-5 h-5 md:w-6 md:h-6 accent-blue-500" />
+                                        </label>
+                                        
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-bold text-slate-600 text-sm md:text-base">語音速度</span>
+                                                <span className="text-xs text-slate-500 bg-slate-200 px-2 py-0.5 rounded">{appSettings.voiceRate || 0.85}x</span>
+                                            </div>
+                                            <input type="range" min="0.5" max="1.5" step="0.05" value={appSettings.voiceRate || 0.85} onChange={(e) => toggleSetting('voiceRate', parseFloat(e.target.value))} className="w-full accent-blue-500" />
+                                        </div>
+
+                                        {voices.length > 0 && (
+                                            <div className="flex flex-col gap-2">
+                                                <span className="font-bold text-slate-600 text-sm md:text-base">語音風格 (瀏覽器內建)</span>
+                                                <select value={appSettings.voiceURI || ''} onChange={(e) => toggleSetting('voiceURI', e.target.value)} className="p-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:border-blue-500">
+                                                    <option value="">預設語音</option>
+                                                    {voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name}</option>)}
+                                                </select>
+                                            </div>
+                                        )}
+                                        
+                                        <button onClick={() => speak('這是一個測試聲音，聽聽看吧！')} className="mt-2 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm hover:bg-blue-200 transition flex items-center justify-center gap-2">
+                                            <IconSpeaker /> 測試當前語音
+                                        </button>
+                                    </div>
+
+                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-2 md:gap-3">
+                                        <span className="text-lg font-bold text-slate-700 border-b pb-2 mb-1">遊戲模式</span>
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
+                                            <input type="radio" name="gameMode" value="normal" checked={appSettings.gameMode === 'normal'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-base md:text-lg text-slate-800">一般模式</span>
+                                                <span className="text-xs md:text-sm text-slate-500">答題後即時顯示對錯，全部答完後結算分數。</span>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
+                                            <input type="radio" name="gameMode" value="heart" checked={appSettings.gameMode === 'heart'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-base md:text-lg text-slate-800">愛心制度 (3條命)</span>
+                                                <span className="text-xs md:text-sm text-slate-500">你只有3顆愛心，答錯3題就需要重新來過！</span>
+                                            </div>
+                                        </label>
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
+                                            <input type="radio" name="gameMode" value="timer" checked={appSettings.gameMode === 'timer'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                            <div className="flex flex-col w-full">
+                                                <span className="font-bold text-base md:text-lg text-slate-800">計時模式</span>
+                                                <span className="text-xs md:text-sm text-slate-500">在限定時間內完成所有題目。</span>
+                                                {appSettings.gameMode === 'timer' && (
+                                                    <div className="mt-2 flex items-center gap-2">
+                                                        <span className="text-sm font-bold text-slate-600">設定時間：</span>
+                                                        <select value={appSettings.timerDuration || 60} onChange={(e) => toggleSetting('timerDuration', parseInt(e.target.value))} className="p-1 border border-slate-300 rounded text-sm bg-white focus:outline-none focus:border-blue-500">
+                                                            <option value={30}>30 秒</option>
+                                                            <option value={60}>60 秒</option>
+                                                            <option value={90}>90 秒</option>
+                                                            <option value={120}>120 秒</option>
+                                                            <option value={300}>5 分鐘</option>
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </label>
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
+                                            <input type="radio" name="gameMode" value="submit" checked={appSettings.gameMode === 'submit'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-base md:text-lg text-slate-800">交卷模式</span>
+                                                <span className="text-xs md:text-sm text-slate-500">作答時不提示對錯，全部測驗完畢後才知道結果。</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button onClick={() => setShowSettings(false)} className="w-full mt-6 md:mt-8 bg-blue-500 text-white font-bold text-lg md:text-xl py-3 rounded-xl hover:bg-blue-600 transition">
+                                    完成設定
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <footer className="w-full text-center py-4 md:py-6 text-slate-400 font-bold text-xs md:text-sm bg-slate-100 border-t border-slate-200 mt-auto">
+                        由特工365製作
+                    </footer>
+                </div>
+            );
+        }
+
+        const GamePlayView = ({ vol, level, levelWords, allWordsInVol, appSettings, onFinish, onCancel, speak, playSuccess, playFail, playCelebration }) => {
+            const [questions, setQuestions] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [mistakes, setMistakes] = useState([]);
+            const [feedback, setFeedback] = useState(null); 
+            const [hearts, setHearts] = useState(3);
+            
+            const [timeElapsed, setTimeElapsed] = useState(0);
+            const [timeLeft, setTimeLeft] = useState(appSettings.timerDuration || 60);
+
+            const isHeartMode = appSettings.gameMode === 'heart';
+            const isSubmitMode = appSettings.gameMode === 'submit';
+            const isTimerMode = appSettings.gameMode === 'timer';
+
+            useEffect(() => {
+                const generated = levelWords.map(targetObj => {
+                    const opts = [targetObj.word];
+                    
+                    let pool = levelWords.filter(w => w.word !== targetObj.word);
+                    const shuffledPool = [...pool].sort(() => 0.5 - Math.random());
+                    
+                    for (let i = 0; i < Math.min(3, shuffledPool.length); i++) {
+                        opts.push(shuffledPool[i].word);
+                    }
+                    
+                    if (opts.length < 4) {
+                        const extraPool = allWordsInVol.filter(w => w.word !== targetObj.word && !pool.some(p => p.word === w.word));
+                        const shuffledExtra = [...extraPool].sort(() => 0.5 - Math.random());
+                        for (let i = 0; opts.length < 4 && i < shuffledExtra.length; i++) {
+                            opts.push(shuffledExtra[i].word);
+                        }
+                    }
+                    
+                    const randomPhrase = targetObj.phrases.length > 0 
+                        ? targetObj.phrases[Math.floor(Math.random() * targetObj.phrases.length)]
+                        : null;
+
+                    return {
+                        target: targetObj,
+                        phrase: randomPhrase, 
+                        options: opts.sort(() => 0.5 - Math.random()) 
+                    };
+                });
+                setQuestions(generated);
+            }, [levelWords, allWordsInVol]);
+
+            const currentQ = questions[currentIndex];
+
+            useEffect(() => {
+                if (!currentQ || feedback?.status === 'timeout') return;
+                const timer = setInterval(() => {
+                    setTimeElapsed(prev => prev + 1);
+                    if (isTimerMode) {
+                        setTimeLeft(prev => prev - 1);
+                    }
+                }, 1000);
+                return () => clearInterval(timer);
+            }, [currentQ, isTimerMode, feedback]);
+
+            useEffect(() => {
+                if (isTimerMode && timeLeft <= 0 && (!feedback || feedback.status !== 'timeout')) {
+                    playFail();
+                    setFeedback({ status: 'timeout' });
+                    setTimeout(() => {
+                        const score = Math.round(((questions.length - mistakes.length) / questions.length) * 100);
+                        onFinish(score, mistakes, 'timeout', timeElapsed);
+                    }, 1500);
+                }
+            }, [timeLeft, isTimerMode, feedback, mistakes, questions.length, timeElapsed, onFinish, playFail]);
+
+            useEffect(() => {
+                if (currentQ && !feedback) {
+                    if (appSettings.autoRead) {
+                        speak(currentQ.phrase || '請選出正確的字');
+                    }
+                }
+            }, [currentIndex, currentQ, appSettings]);
+
+            if (!currentQ) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold">準備中...</div>;
+
+            const handleAnswer = (ans) => {
+                if (feedback) return; 
+
+                const isCorrect = ans === currentQ.target.word;
+
+                if (isSubmitMode) {
+                    let newMistakes = mistakes;
+                    if (!isCorrect) {
+                        newMistakes = [...mistakes, currentQ];
+                        setMistakes(newMistakes);
+                    }
+                    setFeedback({ status: 'selected', clicked: ans });
+                    
+                    setTimeout(() => {
+                        setFeedback(null);
+                        if (currentIndex + 1 < questions.length) {
+                            setCurrentIndex(prev => prev + 1);
+                        } else {
+                            const score = Math.round(((questions.length - newMistakes.length) / questions.length) * 100);
+                            onFinish(score, newMistakes, false, timeElapsed);
+                        }
+                    }, 300);
+                    return;
+                }
+
+                if (isCorrect) {
+                    playSuccess();
+                    setFeedback({ status: 'correct', clicked: ans });
+                    
+                    setTimeout(() => {
+                        setFeedback(null);
+                        if (currentIndex + 1 < questions.length) {
+                            setCurrentIndex(prev => prev + 1);
+                        } else {
+                            const score = Math.round(((questions.length - mistakes.length) / questions.length) * 100);
+                            if (score >= 80) playCelebration();
+                            onFinish(score, mistakes, false, timeElapsed);
+                        }
+                    }, 1000); 
+                    
+                } else {
+                    playFail();
+                    const newMistakes = [...mistakes, currentQ];
+                    setMistakes(newMistakes);
+                    setFeedback({ status: 'incorrect', clicked: ans });
+
+                    if (isHeartMode) {
+                        const newHearts = hearts - 1;
+                        setHearts(newHearts);
+                        if (newHearts <= 0) {
+                            setTimeout(() => {
+                                onFinish(0, newMistakes, 'heart', timeElapsed); 
+                            }, 1500);
+                            return;
+                        }
+                    }
+                    
+                    setTimeout(() => {
+                        setFeedback(null);
+                        if (currentIndex + 1 < questions.length) {
+                            setCurrentIndex(prev => prev + 1);
+                        } else {
+                            const score = Math.round(((questions.length - newMistakes.length) / questions.length) * 100);
+                            if (score >= 80) playCelebration();
+                            onFinish(score, newMistakes, false, timeElapsed);
+                        }
+                    }, 2500); 
+                }
+            };
+
+            const targetPhrase = currentQ.phrase;
+            const displayText = targetPhrase ? targetPhrase.replace(new RegExp(currentQ.target.word, 'g'), '「    」') : '請選出正確的字';
+
+            return (
+                <div className="w-full flex-1 flex flex-col items-center">
+                    <div className="w-full bg-white shadow-sm p-3 md:p-4 flex items-center justify-between mb-4 md:mb-8 sticky top-0 z-30">
+                        <button onClick={onCancel} className="px-3 py-1.5 md:px-6 md:py-2 bg-slate-200 rounded-lg md:rounded-xl font-bold text-slate-700 hover:bg-slate-300 text-xs md:text-base">放棄退出</button>
+                        <div className="flex-1 px-4 md:px-8">
+                            <div className="w-full bg-slate-200 rounded-full h-2 md:h-4">
+                                <div className="bg-blue-500 h-2 md:h-4 rounded-full transition-all duration-300" style={{ width: `${((currentIndex) / questions.length) * 100}%` }}></div>
+                            </div>
+                            <div className="text-center mt-1 md:mt-2 font-bold text-slate-500 text-xs md:text-base">進度：{currentIndex + 1} / {questions.length}</div>
+                        </div>
+                        {isTimerMode && (
+                            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl border shrink-0 font-bold ${timeLeft <= 10 ? 'bg-red-100 text-red-600 border-red-200 animate-pulse' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
+                                ⏳ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                            </div>
+                        )}
+                        {isHeartMode && (
+                            <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-red-50 rounded-lg md:rounded-xl border border-red-100 shrink-0">
+                                {[...Array(3)].map((_, i) => (
+                                    <div key={i} className={`transition-all duration-300 scale-75 md:scale-100 ${i < hearts ? "opacity-100" : "opacity-20 grayscale scale-50 md:scale-75"}`}>
+                                        <IconHeart />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="w-full max-w-4xl px-4 md:px-6 flex flex-col items-center flex-1 justify-center pb-10">
+                        <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 text-center mb-6 md:mb-10 border-4 border-blue-50 relative">
+                            <button onClick={() => speak(currentQ.phrase || '請選出正確的字')} className="absolute top-2 right-2 md:top-6 md:right-6 p-2 md:p-4 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition scale-75 md:scale-100" title="點擊朗讀題目">
+                                <IconSpeaker />
+                            </button>
+                            <h2 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-blue-900 tracking-widest leading-normal md:leading-tight">{displayText}</h2>
+                        </div>
+
+                        {feedback && feedback.status !== 'selected' && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                                {feedback.status === 'correct' ? 
+                                    <div className="bg-green-500 text-white rounded-full p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-bounce">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" className="md:w-20 md:h-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </div>
+                                : feedback.status === 'timeout' ? 
+                                    <div className="bg-red-500 text-white rounded-3xl p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-pulse font-bold text-2xl md:text-4xl">
+                                        時間到！
+                                    </div>
+                                :
+                                    <div className="bg-red-500 text-white rounded-full p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-pulse">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" className="md:w-20 md:h-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </div>
+                                }
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4 md:gap-6 w-full">
+                            {currentQ.options.map((opt, idx) => {
+                                let btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700 hover:shadow-xl transition-all active:scale-95";
+                                
+                                if (feedback) {
+                                    if (feedback.status === 'selected') {
+                                        btnClass = opt === feedback.clicked 
+                                            ? "bg-blue-100 border-4 border-blue-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-blue-700 shadow-xl scale-105 z-10" 
+                                            : "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 opacity-40";
+                                    } else {
+                                        if (opt === currentQ.target.word) {
+                                            btnClass = "bg-green-100 border-4 border-green-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-green-700 shadow-xl transition-all scale-105 z-10";
+                                        } else if (feedback.status === 'incorrect' && opt === feedback.clicked) {
+                                            btnClass = "bg-red-100 border-4 border-red-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-red-700 transition-all opacity-70";
+                                        } else {
+                                            btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 transition-all opacity-40";
+                                        }
+                                    }
+                                }
+
+                                return (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => handleAnswer(opt)}
+                                        disabled={!!feedback}
+                                        className={btnClass}
+                                    >
+                                        {opt}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
