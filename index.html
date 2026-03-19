@@ -13,22 +13,29 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
+        /* 全域字型設定為標楷體 */
+        * {
+            font-family: "標楷體", "DFKai-SB", "BiauKai", "Apple LiSung", serif;
+        }
+
         .custom-scrollbar::-webkit-scrollbar { height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        body { margin: 0; padding: 0; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* 移除按鈕選取時的藍色邊框與手機點擊陰影 */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
         button:focus, button:active {
             outline: none !important;
             box-shadow: none !important;
-            -webkit-tap-highlight-color: transparent;
         }
-        /* 針對 Chrome/Safari 的特殊處理 */
-        *:focus {
-            outline: none !important;
-        }
+
+        .text-nowrap { white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -37,11 +44,20 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
 
-        // --- Icons (Inline SVG) ---
+        // --- Icons (修正後的設定圖示) ---
         const IconLock = () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
         const IconSpeaker = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>;
-        const IconSettings = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+        
+        // 修正後的 IconSettings，使用更簡潔且精確的 Path
+        const IconSettings = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+            </svg>
+        );
+
         const IconHeart = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>;
+        const IconDownload = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
 
         const GAME_DATA = {
             1: [
@@ -76,7 +92,7 @@
                 [{ word: '克', phrases: ['克服', '公克'] }, { word: '驗', phrases: ['驗血', '靈驗'] }, { word: '程', phrases: ['啟程', '路程'] }, { word: '族', phrases: ['家族', '水族館'] }, { word: '葉', phrases: ['葉子', '葉片'] }, { word: '兄', phrases: ['兄弟', '兄長'] }, { word: '待', phrases: ['等待', '對待'] }, { word: '亂', phrases: ['混亂', '亂來'] }, { word: '追', phrases: ['追趕', '追思'] }, { word: '冷', phrases: ['寒冷', '冷言冷語'] }, { word: '派', phrases: ['派遣', '蘋果派'] }],
                 [{ word: '祖', phrases: ['祖父', '始祖'] }, { word: '唱', phrases: ['唱歌', '唱名'] }, { word: '陳', phrases: ['陳列', '陳年'] }, { word: '佛', phrases: ['佛祖', '佛心'] }, { word: '伯', phrases: ['伯父', '老伯伯'] }, { word: '油', phrases: ['沙拉油', '路油油'] }, { word: '戲', phrases: ['演戲', '戲弄'] }, { word: '注', phrases: ['專注', '注水'] }, { word: '首', phrases: ['首先', '首領'] }, { word: '豬', phrases: ['豬肉', '豬八戒'] }],
                 [{ word: '破', phrases: ['破壞', '破費'] }, { word: '堂', phrases: ['廳堂', '堂哥'] }, { word: '醫', phrases: ['醫生', '醫院'] }, { word: '相', phrases: ['相同', '互相'] }, { word: '晴', phrases: ['眼睛'] }, { word: '肉', phrases: ['肌肉', '果肉'] }, { word: '講', phrases: ['講話', '講究'] }, { word: '顧', phrases: ['照顧', '回顧'] }, { word: '切', phrases: ['切菜', '切入'] }, { word: '景', phrases: ['風景', '景仰'] }],
-                [{ word: '院', phrases: ['醫院', '庭院'] }, { word: '枝', phrases: ['樹枝', '花枝'] }, { word: '哭', phrases: ['哭泣', '哭喪著臉'] }, { word: '蓋', phrases: ['鍋蓋', '蓋章'] }, { word: '斷', phrases: ['切斷', '診斷'] }, { word: '察', phrases: ['觀察', '警察'] }, { word: '板', phrases: ['黑板', '古板'] }, { word: '假', phrases: ['假裝', '假髮'] }, { word: '團', phrases: ['紙團', '社團'] }, { word: '壞', phrases: ['破壞', '壞人'] }],
+                [{ word: '院', phrases: ['醫院', '庭院'] }, { word: '枝', phrases: ['樹枝', '花枝'] }, { word: '哭', phrases: ['哭泣', '哭喪著臉'] }, { word: '蓋', phrases: ['鍋蓋', '蓋章'] }, { word: '斷', phrases: ['切斷', '診斷'] }, { word: '察', phrases: ['觀察', '警察'] }, { word: '板', phrases: ['黑板', '官板'] }, { word: '假', phrases: ['假裝', '假髮'] }, { word: '團', phrases: ['紙團', '社團'] }, { word: '壞', phrases: ['破壞', '壞人'] }],
                 [{ word: '天', phrases: ['天空', '今天'] }, { word: '空', phrases: ['天空', '空氣'] }, { word: '氣', phrases: ['生氣', '天氣'] }, { word: '生', phrases: ['學生', '生活'] }],
                 [{ word: '活', phrases: ['活動', '生活'] }, { word: '動', phrases: ['動物', '運動'] }] 
             ],
@@ -86,7 +102,7 @@
                 [{ word: '松', phrases: ['松樹'] }, { word: '替', phrases: ['替代', '替身'] }, { word: '顯', phrases: ['明顯', '顯示'] }, { word: '拜', phrases: ['拜託', '拜年'] }, { word: '姓', phrases: ['姓名', '百姓'] }, { word: '靠', phrases: ['靠山', '靠近'] }, { word: '盤', phrases: ['盤子', '盤查'] }, { word: '暗', phrases: ['暗地', '暗示'] }, { word: '君', phrases: ['君主', '君子'] }, { word: '免', phrases: ['免費', '罷免'] }, { word: '袋', phrases: ['口袋', '袋鼠'] }],
                 [{ word: '猴', phrases: ['猴急', '潑猴'] }, { word: '搖', phrases: ['招搖', '動搖'] }, { word: '劉', phrases: ['劉海', '劉備'] }, { word: '樓', phrases: ['樓房', '騎樓'] }, { word: '投', phrases: ['投靠', '投降'] }, { word: '抓', phrases: ['抓癢', '抓緊'] }, { word: '存', phrases: ['儲存', '保存'] }, { word: '製', phrases: ['製作', '特製'] }, { word: '藥', phrases: ['服藥', '藥局'] }, { word: '短', phrases: ['短暫', '簡短'] }, { word: '冰', phrases: ['冰冷', '冰雪聰明'] }],
                 [{ word: '既', phrases: ['既然', '既定'] }, { word: '朵', phrases: ['花朵', '大快朵頤'] }, { word: '負', phrases: ['抱負', '負責'] }, { word: '夢', phrases: ['夢想', '白日夢'] }, { word: '沙', phrases: ['泥沙', '沙發'] }, { word: '互', phrases: ['互助', '互動'] }, { word: '賽', phrases: ['比賽', '接力賽'] }, { word: '級', phrases: ['年級', '班級'] }, { word: '責', phrases: ['負責', '責罵'] }, { word: '勝', phrases: ['勝利', '勝過'] }, { word: '附', phrases: ['附近', '附著'] }],
-                [{ word: '連', phrases: ['連接', '一連'] }, { word: '趣', phrases: ['興趣', '趣事'] }, { word: '肯', phrases: ['肯定', '不肯'] }, { word: '嘴', phrases: ['嘴巴', '多嘴'] }, { word: '賞', phrases: ['欣賞', '賞賜'] }, { word: '孔', phrases: ['針孔', '打孔'] }, { word: '仔', phrases: ['仔細', '菜仔'] }, { word: '低', phrases: ['高低', '低調'] }, { word: '休', phrases: ['休息', '休閒活動'] }, { word: '談', phrases: ['談話', '談論'] }],
+                [{ word: '連', phrases: ['連接', '一連'] }, { word: '開', phrases: ['展開', '開放'] }, { word: '趣', phrases: ['興趣', '趣事'] }, { word: '肯', phrases: ['肯定', '不肯'] }, { word: '嘴', phrases: ['嘴巴', '多嘴'] }, { word: '賞', phrases: ['欣賞', '賞賜'] }, { word: '孔', phrases: ['針孔', '打孔'] }, { word: '仔', phrases: ['仔細', '菜仔'] }, { word: '低', phrases: ['高低', '低調'] }, { word: '休', phrases: ['休息', '休閒活動'] }, { word: '談', phrases: ['談話', '談論'] }],
                 [{ word: '乙', phrases: ['乙等'] }, { word: '吸', phrases: ['呼吸', '吸引'] }, { word: '波', phrases: ['波浪', '一波'] }, { word: '衛', phrases: ['衛生', '衛兵'] }, { word: '蟲', phrases: ['昆蟲', '螢火蟲'] }, { word: '財', phrases: ['財富', '財產'] }, { word: '床', phrases: ['病床', '河床'] }, { word: '菜', phrases: ['菜單', '菜園'] }, { word: '乾', phrases: ['乾燥', '乾淨'] }, { word: '陸', phrases: ['陸地', '著陸'] }],
                 [{ word: '捉', phrases: ['捕捉', '捉迷藏'] }, { word: '換', phrases: ['交換', '變換'] }, { word: '吹', phrases: ['吹風', '吹牛'] }, { word: '貴', phrases: ['珍貴', '貴族'] }, { word: '止', phrases: ['停止', '阻止'] }, { word: '醒', phrases: ['提醒', '叫醒'] }, { word: '爬', phrases: ['爬行', '爬山'] }, { word: '秋', phrases: ['秋天', '秋風'] }, { word: '樂', phrases: ['快樂', '樂意'] }, { word: '鐘', phrases: ['分鐘', '打鐘'] }],
                 [{ word: '迎', phrases: ['歡迎', '迎接'] }, { word: '敬', phrases: ['敬佩', '敬上'] }, { word: '鬧', phrases: ['熱鬧', '吵鬧'] }, { word: '志', phrases: ['志工', '意志'] }, { word: '究', phrases: ['研究', '終究'] }, { word: '寬', phrases: ['寬廣', '寬敞'] }, { word: '州', phrases: ['杭州', '湄州島'] }, { word: '楚', phrases: ['清楚', '苦楚'] }, { word: '端', phrases: ['端詳', '尖端'] }, { word: '層', phrases: ['大氣層', '層層'] }],
@@ -96,8 +112,8 @@
                 [{ word: '植', phrases: ['植物', '種植'] }, { word: '錄', phrases: ['記錄', '錄取'] }, { word: '勞', phrases: ['勞力', '功勞'] }, { word: '鎮', phrases: ['小鎮', '鎮壓'] }, { word: '抱', phrases: ['懷抱', '抱怨'] }, { word: '幹', phrases: ['樹幹', '能幹'] }, { word: '舞', phrases: ['舞蹈', '揮舞'] }, { word: '興', phrases: ['高興', '興趣'] }, { word: '困', phrases: ['困難', '困住'] }, { word: '鄭', phrases: ['鄭重', '鄭成功'] }, { word: '棒', phrases: ['木棒', '真棒'] }],
                 [{ word: '游', phrases: ['游泳池', '遊民'] }, { word: '竹', phrases: ['竹竿', '新竹'] }, { word: '冬', phrases: ['冬眠', '寒冬'] }, { word: '辛', phrases: ['辛苦', '辛辣'] }, { word: '印', phrases: ['印章', '印象'] }, { word: '散', phrases: ['散步', '分散'] }, { word: '懂', phrases: ['懂得', '懂事'] }, { word: '莊', phrases: ['村莊', '莊重'] }, { word: '科', phrases: ['科目', '科學'] }, { word: '躲', phrases: ['躲藏', '躲避'] }, { word: '娃', phrases: ['小娃娃', '夏娃'] }],
                 [{ word: '蓮', phrases: ['蓮花', '蓮霧'] }, { word: '妙', phrases: ['美妙', '曼妙'] }, { word: '蛋', phrases: ['雞蛋', '搗蛋'] }, { word: '集', phrases: ['集合', '收集'] }, { word: '館', phrases: ['博物館', '圖書館'] }, { word: '藍', phrases: ['藍色', '藍縷'] }, { word: '彩', phrases: ['色彩', '摸彩'] }, { word: '窗', phrases: ['門窗', '窗口'] }, { word: '桌', phrases: ['書桌', '桌布'] }, { word: '壓', phrases: ['壓力', '欺壓'] }, { word: '敗', phrases: ['失敗', '打敗'] }],
-                [{ word: '營', phrases: ['露營', '營業'] }, { word: '旅', phrases: ['旅館', '旅行'] }, { word: '鹿', phrases: ['鹿角', '鹿草'] }, { word: '絲', phrases: ['細絲', '絲毫'] }, { word: '異', phrases: ['異常', '怪異'] }, { word: '擊', phrases: ['打擊', '攻擊'] }, { word: '退', phrases: ['退步', '後退'] }, { word: '瓶', phrases: ['酒瓶', '瓶頸'] }, { word: '鄰', phrases: ['鄰居', '鄰近'] }, { word: '悄', phrases: ['悄悄話', '悄悄'] }, { word: '忘', phrases: ['備忘錄', '健忘'] }],
-                [{ word: '堆', phrases: ['一堆', '堆積'] }, { word: '標', phrases: ['標誌', '標籤'] }, { word: '永', phrases: ['永遠', '永別'] }, { word: '廟', phrases: ['廟會', '五臟廟'] }, { word: '戴', phrases: ['配戴', '穿戴'] }, { word: '堅', phrases: ['堅固', '堅強'] }, { word: '牆', phrases: ['牆角', '圍牆'] }, { word: '茶', phrases: ['泡茶', '茶包'] }, { word: '透', phrases: ['透氣', '透過'] }, { word: '材', phrases: ['材料', '器材'] }, { word: '掛', phrases: ['掛號', '掛鐘'] }],
+                [{ word: '營', phrases: ['露營', '營業'] }, { word: '旅', phrases: ['旅館', '旅行'] }, { word: '鹿', phrases: ['鹿角', '鹿草'] }, { word: '絲', phrases: ['細絲', '絲絲'] }, { word: '異', phrases: ['異常', '怪異'] }, { word: '擊', phrases: ['打擊', '攻擊'] }, { word: '退', phrases: ['退步', '後退'] }, { word: '瓶', phrases: ['酒瓶', '瓶頸'] }, { word: '鄰', phrases: ['鄰居', '鄰近'] }, { word: '悄', phrases: ['悄悄話', '悄悄'] }, { word: '忘', phrases: ['備忘錄', '健忘'] }],
+                [{ word: '堆', phrases: ['一堆', '堆積'] }, { word: '標', phrases: ['標誌', '標籤'] }, { word: '挑戰', phrases: ['挑戰者', '奮戰'] }, { word: '永', phrases: ['永遠', '永別'] }, { word: '廟', phrases: ['廟會', '五臟廟'] }, { word: '戴', phrases: ['配戴', '穿戴'] }, { word: '堅', phrases: ['堅固', '堅強'] }, { word: '牆', phrases: ['牆角', '圍牆'] }, { word: '茶', phrases: ['泡茶', '茶包'] }, { word: '透', phrases: ['透氣', '透過'] }, { word: '材', phrases: ['材料', '器材'] }, { word: '掛', phrases: ['掛號', '掛鐘'] }],
                 [{ word: '章', phrases: ['蓋章', '私章'] }, { word: '盒', phrases: ['禮盒', '保鮮盒'] }, { word: '詩', phrases: ['詩人', '詩選'] }, { word: '聞', phrases: ['聞名', '聞訊'] }, { word: '拍', phrases: ['大拍賣', '慢半拍'] }, { word: '哇', phrases: ['哇哇叫', '哇哇'] }, { word: '夏', phrases: ['夏令營', '炎炎夏日'] }, { word: '態', phrases: ['動態', '態度'] }, { word: '熟', phrases: ['熟練', '熟悉'] }, { word: '箱', phrases: ['行李箱', '紙箱'] }, { word: '街', phrases: ['老街', '街口'] }],
                 [{ word: '針', phrases: ['針對', '胸針'] }, { word: '廠', phrases: ['廠房', '廠商'] }, { word: '伸', phrases: ['延伸', '伸縮'] }, { word: '恩', phrases: ['感恩', '恩惠'] }, { word: '種', phrases: ['播種', '絕種'] }, { word: '危', phrases: ['危機', '危害'] }, { word: '季', phrases: ['季節', '旺季'] }, { word: '雪', phrases: ['冰天雪地', '雪白'] }, { word: '沖', phrases: ['沖泡', '興沖沖'] }, { word: '寒', phrases: ['寒冷', '貧寒'] }, { word: '溪', phrases: ['溪谷', '溪頭'] }],
                 [{ word: '池', phrases: ['水池', '化糞池'] }, { word: '弄', phrases: ['戲弄', '撥弄'] }, { word: '欣', phrases: ['欣喜', '欣賞'] }, { word: '烏', phrases: ['烏雲密布', '烏鴉嘴'] }, { word: '淚', phrases: ['淚汪汪', '淚痕'] }, { word: '橋', phrases: ['橋梁', '便橋'] }, { word: '探', phrases: ['探親', '探頭'] }, { word: '尊', phrases: ['尊敬', '尊長'] }, { word: '擺', phrases: ['擺設', '擺臉色'] }, { word: '岸', phrases: ['海岸線', '靠岸'] }, { word: '湖', phrases: ['湖泊', '湖光山色'] }],
@@ -115,7 +131,6 @@
             const [view, setView] = useState('login'); 
             const [showSettings, setShowSettings] = useState(false);
             const [voices, setVoices] = useState([]);
-
             const [playerName, setPlayerName] = useState('');
             const [playerHistory, setPlayerHistory] = useState({});
             const [appSettings, setAppSettings] = useState({ 
@@ -126,7 +141,6 @@
                 voiceURI: '',
                 timerDuration: 60
             });
-            
             const [activeVol, setActiveVol] = useState(1);
             const [activeLevel, setActiveLevel] = useState(1);
             const [gameResult, setGameResult] = useState(null); 
@@ -144,9 +158,7 @@
                     setVoices(v.filter(voice => voice.lang.includes('zh') || voice.lang.includes('cmn')));
                 };
                 loadVoices();
-                if (window.speechSynthesis.onvoiceschanged !== undefined) {
-                    window.speechSynthesis.onvoiceschanged = loadVoices;
-                }
+                if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = loadVoices;
             }, []);
 
             useEffect(() => {
@@ -155,9 +167,7 @@
                     if (localHist) setPlayerHistory(JSON.parse(localHist));
                     const localSet = localStorage.getItem(LOCAL_STORAGE_KEY_SETTINGS);
                     if (localSet) setAppSettings(JSON.parse(localSet));
-                } catch (e) {
-                    console.error("Local Storage Error", e);
-                }
+                } catch (e) { console.error(e); }
                 setLoading(false);
             }, []);
 
@@ -166,81 +176,13 @@
                     window.speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'zh-TW';
-                    utterance.rate = appSettings.voiceRate !== undefined ? appSettings.voiceRate : 0.85;
-
+                    utterance.rate = appSettings.voiceRate || 0.85;
                     if (appSettings.voiceURI) {
-                        const selectedVoice = voices.find(v => v.voiceURI === appSettings.voiceURI);
-                        if (selectedVoice) {
-                            utterance.voice = selectedVoice;
-                        }
+                        const v = voices.find(v => v.voiceURI === appSettings.voiceURI);
+                        if (v) utterance.voice = v;
                     }
-
                     window.speechSynthesis.speak(utterance);
                 }
-            };
-
-            const playSuccessSound = () => {
-                try {
-                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    osc.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(800, ctx.currentTime);
-                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.1);
-                } catch(e) {}
-            };
-
-            const playFailSound = () => {
-                try {
-                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    osc.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(300, ctx.currentTime);
-                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                } catch(e) {}
-            }
-
-            const playCelebrationSound = () => {
-                try {
-                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const playNote = (freq, startTime, duration) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.type = 'triangle';
-                        osc.frequency.setValueAtTime(freq, startTime);
-                        gain.gain.setValueAtTime(0.1, startTime);
-                        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-                        osc.start(startTime);
-                        osc.stop(startTime + duration);
-                    };
-                    const now = ctx.currentTime;
-                    playNote(523.25, now, 0.15); // C5
-                    playNote(659.25, now + 0.15, 0.15); // E5
-                    playNote(783.99, now + 0.30, 0.15); // G5
-                    playNote(1046.50, now + 0.45, 0.40); // C6
-                } catch(e) {}
-            };
-
-            const getBestScore = (hist, vol, level) => {
-                if (!hist) return null;
-                let best = -1;
-                Object.entries(hist).forEach(([key, data]) => {
-                    if (key.startsWith(`v${vol}l${level}_`)) {
-                        if (data.score > best) best = data.score;
-                    }
-                });
-                return best === -1 ? null : best;
             };
 
             const toggleSetting = (key, val) => {
@@ -249,43 +191,106 @@
                 localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(newSettings));
             };
 
-            const renderHeader = (pageTitle, showBack = true, backAction = () => setView('home')) => (
+            const getBestScore = (hist, vol, level) => {
+                if (!hist) return null;
+                let best = -1;
+                Object.entries(hist).forEach(([key, data]) => {
+                    if (key.startsWith(`v${vol}l${level}_`)) { if (data.score > best) best = data.score; }
+                });
+                return best === -1 ? null : best;
+            };
+
+            const exportToDoc = (filename, questionsContent, answersContent) => {
+                // 窄邊界樣式 (0.5 inch = 36pt)
+                const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>识字大冒险</title><style>@page Section1 {size:595.3pt 841.9pt; margin:36pt 36pt 36pt 36pt; mso-header-margin:35.4pt; mso-footer-margin:35.4pt; mso-paper-source:0;} div.Section1 {page:Section1;} body {font-family:'標楷體', 'DFKai-SB', serif;}</style></head><body><div class='Section1'>`;
+                const postHtml = `</div></body></html>`;
+                const pageBreak = '<br clear=all style="mso-break-type:section-break;page-break-before:always">';
+                const fullHtml = preHtml + questionsContent + pageBreak + answersContent + postHtml;
+                const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url; link.download = filename; link.click();
+                URL.revokeObjectURL(url);
+            };
+
+            const downloadAllWorksheets = (vol) => {
+                const levels = GAME_DATA[vol].map((_, i) => i + 1);
+                let questionsHtml = '';
+                let answersHtml = '<h1 style="font-size: 24pt; text-align: center; border-bottom: 2pt solid #000;">全冊解答本 (第 ' + vol + ' 冊)</h1>';
+
+                levels.forEach((l, idx) => {
+                    const words = GAME_DATA[vol][l - 1];
+                    let levelAnswers = [];
+                    const questions = words.map((obj, i) => {
+                        let opts = [obj.word];
+                        let pool = words.filter(w => w.word !== obj.word);
+                        let shuffledPool = [...pool].sort(() => 0.5 - Math.random());
+                        for(let j=0; j<3 && j<shuffledPool.length; j++) opts.push(shuffledPool[j].word);
+                        const correctWord = obj.word;
+                        opts.sort(() => 0.5 - Math.random());
+                        const correctIdx = opts.indexOf(correctWord) + 1;
+                        levelAnswers.push(`${i+1}.(${correctIdx})`);
+                        const phrase = obj.phrases[Math.floor(Math.random() * obj.phrases.length)];
+                        const displayText = phrase.replace(new RegExp(obj.word, 'g'), '「  」');
+                        return `<div style="margin-bottom: 10pt;"><p style="font-size: 14pt; margin: 0;">${i+1}. ( &nbsp;&nbsp; ) ${displayText}</p><p style="font-size: 13pt; margin: 3pt 0 0 25pt;">(1)${opts[0]} &nbsp;&nbsp; (2)${opts[1]} &nbsp;&nbsp; (3)${opts[2]} &nbsp;&nbsp; (4)${opts[3]}</p></div>`;
+                    }).join('');
+
+                    questionsHtml += `
+                        <div style="padding: 5pt;">
+                            <div style="text-align: center; border-bottom: 1.5pt solid #000; padding-bottom: 5pt; margin-bottom: 10pt;">
+                                <h1 style="font-size: 20pt; margin: 0;">《識字大冒險》學習單</h1>
+                                <p style="font-size: 12pt; color: #555; margin: 2pt 0 0 0;">嘉義縣識字學習系統教材</p>
+                            </div>
+                            <table border="0" width="100%" style="margin-bottom: 10pt; font-size: 13pt; border-bottom: 1pt solid #ccc; padding-bottom: 5pt;">
+                                <tr>
+                                    <td width="40%">冊別：第 ${vol} 冊 / 第 ${l} 關</td>
+                                    <td width="30%" align="center">姓名：_________</td>
+                                    <td width="30%" align="right">日期：__/ __/ __</td>
+                                </tr>
+                            </table>
+                            ${questions}
+                        </div>
+                        ${(idx < levels.length - 1) ? '<br clear=all style="mso-break-type:section-break;page-break-before:always">' : ''}
+                    `;
+
+                    answersHtml += `
+                        <div style="margin-top: 20pt; border: 1pt solid #000; padding: 10pt;">
+                            <p style="font-size: 14pt; font-weight: bold; margin: 0 0 5pt 0;">第 ${vol} 冊 第 ${l} 關 - 解答</p>
+                            <p style="font-size: 12pt; line-height: 1.5; margin: 0; letter-spacing: 2pt;">${levelAnswers.join(' &nbsp; ')}</p>
+                        </div>
+                    `;
+                });
+                exportToDoc(`識字大冒險_第${vol}冊_全冊學習單.doc`, questionsHtml, answersHtml);
+            };
+
+            const renderHeader = (pageTitle, showBack = true, backAction = () => setView('home'), rightActions = null) => (
                 <header className="w-full bg-white shadow-md py-3 px-3 md:py-4 md:px-6 flex flex-row items-center justify-between mb-8 sticky top-0 z-40 gap-2">
                     <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
                         {showBack && (
-                            <button onClick={backAction} className="px-3 py-2 md:px-4 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-slate-700 shrink-0 text-xs md:text-base focus:outline-none">
-                                返回
-                            </button>
+                            <button onClick={backAction} className="px-3 py-2 md:px-4 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-slate-700 shrink-0 text-xs md:text-base focus:outline-none">返回</button>
                         )}
                         <div className="flex flex-col min-w-0">
                             <div className="flex items-center gap-2 md:gap-3">
-                                <h1 className="text-lg md:text-2xl font-black text-blue-900 tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">識字大冒險</h1>
-                                <span className="text-[10px] md:text-sm font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded whitespace-nowrap shrink-0">嘉義縣識字教材</span>
+                                <h1 className="text-lg md:text-2xl font-black text-blue-900 tracking-wide whitespace-nowrap overflow-hidden text-ellipsis text-nowrap">識字大冒險</h1>
+                                <span className="text-[10px] md:text-sm font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded whitespace-nowrap shrink-0">嘉義教材</span>
                             </div>
-                            {pageTitle && (
-                                <h2 className="text-xs md:text-lg font-bold text-slate-500 mt-0.5 truncate">{pageTitle}</h2>
-                            )}
+                            {pageTitle && <h2 className="text-xs md:text-lg font-bold text-slate-500 mt-0.5 truncate">{pageTitle}</h2>}
                         </div>
                     </div>
-                    <div className="flex items-center shrink-0">
-                        <button onClick={() => setShowSettings(true)} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-1.5 md:gap-2 font-bold text-xs md:text-base focus:outline-none">
-                            <IconSettings /> <span className="hidden sm:inline text-nowrap">遊戲設定</span>
-                        </button>
+                    <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+                        {rightActions}
+                        <button onClick={() => setShowSettings(true)} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-1.5 md:gap-2 font-bold text-xs md:text-base focus:outline-none"><IconSettings /></button>
                     </div>
                 </header>
             );
 
             const renderContent = () => {
-                if (loading) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold">系統載入中...</div>;
+                if (loading) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold">載入中...</div>;
 
                 if (view === 'login') {
                     const handleLogin = (e) => {
-                        e.preventDefault();
-                        const name = e.target.pname.value.trim();
-                        if (name) {
-                            setPlayerName(name);
-                            setView('home');
-                        }
+                        e.preventDefault(); const name = e.target.pname.value.trim();
+                        if (name) { setPlayerName(name); setView('home'); }
                     };
                     return (
                         <div className="w-full flex-1 flex flex-col items-center justify-center px-4">
@@ -301,66 +306,30 @@
                 }
 
                 if (view === 'home') {
-                    const startGame = (v, l) => {
-                        setActiveVol(v);
-                        setActiveLevel(l);
-                        setView('gamePlay');
-                    };
-
+                    const startGame = (v, l) => { setActiveVol(v); setActiveLevel(l); setView('gamePlay'); };
+                    const homeRightActions = (
+                        <button onClick={() => downloadAllWorksheets(selectedVol)} className="p-2 md:px-4 md:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition flex items-center gap-1.5 md:gap-2 font-bold text-xs md:text-base focus:outline-none shadow-sm text-nowrap">
+                            <IconDownload /> <span className="hidden sm:inline">全冊 Word</span><span className="sm:hidden">全冊</span>
+                        </button>
+                    );
                     return (
                         <div className="w-full flex-1 flex flex-col items-center">
-                            {renderHeader(`你好，${playerName}！請選擇關卡`, true, () => setView('login'))}
-                            
+                            {renderHeader(`你好，${playerName}！`, true, () => setView('login'), homeRightActions)}
                             <div className="w-full max-w-5xl px-4 md:px-6">
                                 <div className="flex gap-2 md:gap-4 overflow-x-auto pb-6 custom-scrollbar">
-                                    {[1, 2, 3, 4, 5].map(v => {
-                                        const isActive = v === selectedVol;
-                                        return (
-                                            <button key={v} onClick={() => setSelectedVol(v)} className={`flex-shrink-0 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-lg md:text-2xl transition-all focus:outline-none ${isActive ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 shadow border-2 border-blue-100 hover:bg-blue-50'}`}>
-                                                第 {v} 冊
-                                            </button>
-                                        );
-                                    })}
+                                    {[1, 2, 3, 4, 5].map(v => (
+                                        <button key={v} onClick={() => setSelectedVol(v)} className={`flex-shrink-0 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-lg md:text-2xl transition-all focus:outline-none ${v === selectedVol ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 shadow border-2 border-blue-100 hover:bg-blue-50'}`}>第 {v} 冊</button>
+                                    ))}
                                 </div>
-
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 mt-4 md:mt-6 pb-20">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 mt-4 md:mt-6 pb-20 text-center">
                                     {GAME_DATA[selectedVol]?.map((levelWords, index) => {
-                                        const l = index + 1;
-                                        const hasWords = levelWords && levelWords.length > 0;
-                                        const isUnlocked = hasWords; 
+                                        const l = index + 1; const isUnlocked = levelWords && levelWords.length > 0;
                                         const bestScore = getBestScore(playerHistory, selectedVol, l);
-
                                         return (
-                                            <button 
-                                                key={l} 
-                                                disabled={!isUnlocked} 
-                                                onClick={() => startGame(selectedVol, l)} 
-                                                className={`relative flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl md:rounded-3xl border-4 transition-all h-32 md:h-40 focus:outline-none
-                                                    ${isUnlocked ? 'border-green-400 bg-white hover:bg-green-50 hover:scale-105 shadow-md cursor-pointer' : 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'}`}
-                                            >
-                                                {!isUnlocked ? (
-                                                    <>
-                                                        <div className="mb-1 md:mb-2 opacity-50 scale-75 md:scale-100"><IconLock /></div>
-                                                        <span className="text-lg md:text-xl font-bold">第 {l} 關</span>
-                                                        <span className="text-xs md:text-sm mt-1 text-slate-400">(敬請期待)</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <span className="text-xl md:text-2xl font-bold text-green-800 mb-1 md:mb-2">第 {l} 關</span>
-                                                        {bestScore !== null ? (
-                                                            <div className="mt-1 md:mt-2 flex flex-col items-center">
-                                                                <span className="text-[10px] md:text-xs text-slate-500 font-bold mb-1">最高得分</span>
-                                                                <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full text-sm md:text-lg font-bold ${bestScore >= 80 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                                                                    {bestScore}%
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="mt-1 md:mt-2 px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-blue-100 text-blue-700 text-xs md:text-sm font-bold">
-                                                                新挑戰 ⭐
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                )}
+                                            <button key={l} disabled={!isUnlocked} onClick={() => startGame(selectedVol, l)} className={`relative flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl md:rounded-3xl border-4 transition-all h-32 md:h-40 focus:outline-none ${isUnlocked ? 'border-green-400 bg-white hover:bg-green-50 hover:scale-105 shadow-md cursor-pointer' : 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                                                {!isUnlocked ? <div className="mb-1 md:mb-2 opacity-50 scale-75 md:scale-100"><IconLock /></div> : <span className="text-xl md:text-2xl font-bold text-green-800 mb-1 md:mb-2">第 {l} 關</span>}
+                                                {isUnlocked && bestScore !== null && <span className={`px-2 py-0.5 rounded-full text-sm md:text-lg font-bold ${bestScore >= 80 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>{bestScore}%</span>}
+                                                {isUnlocked && bestScore === null && <div className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs md:text-sm font-bold">挑戰 ⭐</div>}
                                             </button>
                                         );
                                     })}
@@ -373,522 +342,138 @@
                 if (view === 'gamePlay') {
                     return (
                         <div className="w-full flex-1 flex flex-col items-center bg-slate-50">
-                            <GamePlayView 
-                                vol={activeVol} 
-                                level={activeLevel} 
-                                levelWords={GAME_DATA[activeVol][activeLevel - 1]} 
-                                allWordsInVol={GAME_DATA[activeVol].flat()} 
-                                appSettings={appSettings}
-                                onFinish={(score, mistakes, endReason = false, timeSpent = 0) => {
-                                    setGameResult({ score, mistakes, endReason, timeSpent });
-                                    setView('gameResult');
-                                }}
-                                onCancel={() => setView('home')}
-                                speak={speak}
-                                playSuccess={playSuccessSound}
-                                playFail={playFailSound}
-                                playCelebration={playCelebrationSound}
-                            />
+                            <GamePlayView vol={activeVol} level={activeLevel} levelWords={GAME_DATA[activeVol][activeLevel - 1]} appSettings={appSettings} onFinish={(score, mistakes, endReason = false, timeSpent = 0) => { setGameResult({ score, mistakes, endReason, timeSpent }); setView('gameResult'); }} onCancel={() => setView('home')} speak={speak} />
                         </div>
                     );
                 }
 
                 if (view === 'gameResult') {
-                    const { score, mistakes, endReason, timeSpent } = gameResult;
-                    const isPass = !endReason && score >= 80;
-
-                    const formatTime = (seconds) => {
-                        const m = Math.floor(seconds / 60);
-                        const s = seconds % 60;
-                        if (m > 0) return `${m} 分 ${s} 秒`;
-                        return `${s} 秒`;
-                    };
-
-                    const handleSaveAndNext = async () => {
-                        const historyKey = `v${activeVol}l${activeLevel}_${Date.now()}`;
-                        const newHistory = { ...playerHistory, [historyKey]: { score, mistakes: mistakes.map(m=>m.target.word), timeSpent, date: new Date().toISOString() } };
-                        setPlayerHistory(newHistory);
-                        localStorage.setItem(LOCAL_STORAGE_KEY_HISTORY, JSON.stringify(newHistory));
-                        setView('home');
-                    };
-
-                    const downloadScorecard = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 800;
-                        canvas.height = 600;
-                        const ctx = canvas.getContext('2d');
-
-                        ctx.fillStyle = '#f8fafc';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                        ctx.fillStyle = '#1e3a8a';
-                        ctx.font = 'bold 56px sans-serif'; 
-                        ctx.textAlign = 'center';
-                        ctx.fillText('識字大冒險', 400, 85);
-
-                        ctx.fillStyle = '#3b82f6';
-                        ctx.fillRect(100, 115, 600, 4);
-
-                        ctx.fillStyle = '#334155';
-                        ctx.font = 'bold 36px sans-serif';
-                        ctx.fillText(`挑戰者：${playerName}`, 400, 180);
-                        
-                        ctx.font = '32px sans-serif';
-                        ctx.fillText(`挑戰關卡：第 ${activeVol} 冊 / 第 ${activeLevel} 關`, 400, 240);
-                        
-                        const modeText = appSettings.gameMode === 'normal' ? '一般模式' : appSettings.gameMode === 'heart' ? '愛心制度' : appSettings.gameMode === 'timer' ? '計時模式' : '交卷模式';
-                        ctx.fillText(`遊戲模式：${modeText}`, 400, 300);
-                        
-                        let scoreY = 400;
-                        if (appSettings.gameMode === 'timer') {
-                            ctx.fillText(`花費時間：${formatTime(timeSpent)}`, 400, 360);
-                            scoreY = 450;
-                        }
-
-                        ctx.font = 'bold 72px sans-serif';
-                        if (endReason === 'heart') {
-                            ctx.fillStyle = '#ef4444';
-                            ctx.fillText('挑戰失敗 (愛心耗盡)', 400, scoreY);
-                        } else if (endReason === 'timeout') {
-                            ctx.fillStyle = '#ef4444';
-                            ctx.fillText('挑戰失敗 (時間到)', 400, scoreY);
-                        } else {
-                            ctx.fillStyle = score >= 80 ? '#16a34a' : '#ea580c';
-                            ctx.fillText(`得分：${score} 分`, 400, scoreY);
-                        }
-
-                        ctx.font = '24px sans-serif';
-                        ctx.fillStyle = '#94a3b8';
-                        ctx.fillText(`測驗時間：${new Date().toLocaleString('zh-TW')}`, 400, 540);
-
-                        const link = document.createElement('a');
-                        link.download = `${playerName}_第${activeVol}冊第${activeLevel}關_成績單.png`;
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                    };
-
+                    const { score, mistakes } = gameResult;
+                    const handleSaveAndNext = async () => { const historyKey = `v${activeVol}l${activeLevel}_${Date.now()}`; const newHistory = { ...playerHistory, [historyKey]: { score, mistakes: mistakes.map(m=>m.target.word), timeSpent: gameResult.timeSpent, date: new Date().toISOString() } }; setPlayerHistory(newHistory); localStorage.setItem(LOCAL_STORAGE_KEY_HISTORY, JSON.stringify(newHistory)); setView('home'); };
                     return (
                         <div className="w-full flex-1 flex flex-col items-center justify-center p-4 pb-20 overflow-y-auto text-center">
                             <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-2xl flex flex-col items-center text-center border-t-8 border-t-blue-500 my-auto">
-                                {endReason === 'heart' ? (
-                                    <>
-                                        <div className="text-6xl md:text-8xl mb-4 md:mb-6">💔</div>
-                                        <h2 className="text-3xl md:text-5xl font-bold mb-2 md:mb-4 text-red-500">愛心耗盡，挑戰失敗！</h2>
-                                        <p className="text-lg md:text-2xl font-bold text-slate-600 mb-6 md:mb-8">已經錯了3題囉，請重新開始挑戰</p>
-                                    </>
-                                ) : endReason === 'timeout' ? (
-                                    <>
-                                        <div className="text-6xl md:text-8xl mb-4 md:mb-6">⏰</div>
-                                        <h2 className="text-3xl md:text-5xl font-bold mb-2 md:mb-4 text-red-500">時間到，挑戰失敗！</h2>
-                                        <p className="text-lg md:text-2xl font-bold text-slate-600 mb-6 md:mb-8">你花費了 {formatTime(timeSpent)}，請把握時間重新挑戰</p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="text-6xl md:text-8xl mb-4 md:mb-6">{isPass ? '🎉' : '💪'}</div>
-                                        <h2 className={`text-3xl md:text-5xl font-bold mb-2 md:mb-4 ${isPass ? 'text-green-600' : 'text-orange-500'}`}>
-                                            {isPass ? (score === 100 ? '完美過關！100%' : '闖關成功！') : '再接再厲！'}
-                                        </h2>
-                                        <p className={`text-xl md:text-3xl font-bold text-slate-700 ${appSettings.gameMode === 'timer' ? 'mb-2' : 'mb-6 md:mb-8'}`}>
-                                            本次正確率：<span className={isPass ? 'text-green-600' : 'text-orange-500'}>{score}%</span>
-                                        </p>
-                                        {appSettings.gameMode === 'timer' && (
-                                            <p className="text-lg font-bold text-slate-500 mb-6 md:mb-8">
-                                                ⏱️ 花費時間：{formatTime(timeSpent)}
-                                            </p>
-                                        )}
-                                    </>
-                                )}
-
-                                {mistakes.length > 0 && (
-                                    <div className="w-full text-left bg-orange-50 p-4 md:p-6 rounded-2xl mb-6 md:mb-8 border border-orange-200">
-                                        <h3 className="text-xl md:text-2xl font-bold text-orange-800 mb-3 md:mb-4 border-b-2 border-orange-200 pb-2 flex items-center gap-2">
-                                            <span>📝</span> 錯題回顧
-                                        </h3>
-                                        <div className="flex flex-col gap-3">
-                                            {mistakes.map((m, i) => (
-                                                <div key={i} className="flex items-center justify-between bg-white p-3 md:p-4 rounded-xl shadow-sm border border-orange-100 text-center sm:text-left">
-                                                    <div className="flex items-center gap-3 md:gap-4 flex-wrap">
-                                                        <span className="text-3xl md:text-4xl font-bold text-red-500">{m.target.word}</span>
-                                                        <span className="text-lg md:text-2xl text-slate-700 font-bold">{m.target.phrases.join(' , ')}</span>
-                                                    </div>
-                                                    <button onClick={() => speak([m.target.word, ...m.target.phrases].join('，'))} className="p-2 md:p-3 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 shrink-0 focus:outline-none" title="朗讀此字詞">
-                                                        <IconSpeaker />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 w-full">
-                                    <button onClick={downloadScorecard} className="flex-1 py-3 md:py-4 bg-purple-100 text-purple-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-purple-200 transition border-2 border-purple-200 focus:outline-none">
-                                        📥 下載成績單
-                                    </button>
-                                    <button onClick={() => setView('gamePlay')} className="flex-1 py-3 md:py-4 bg-blue-100 text-blue-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-blue-200 transition border-2 border-blue-200 focus:outline-none">
-                                        🔄 重新挑戰
-                                    </button>
-                                    <button onClick={handleSaveAndNext} className="flex-1 py-3 md:py-4 bg-green-500 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-green-600 transition shadow-lg focus:outline-none">
-                                        🏠 儲存並回選單
-                                    </button>
-                                </div>
+                                <div className="text-6xl md:text-8xl mb-4 md:mb-6">{score >= 80 ? '🎉' : '💪'}</div>
+                                <h2 className={`text-3xl md:text-5xl font-bold mb-2 md:mb-4 ${score >= 80 ? 'text-green-600' : 'text-orange-500'}`}>{score >= 80 ? '闖關成功！' : '再接再厲！'}</h2>
+                                <p className={`text-xl md:text-3xl font-bold text-slate-700 mb-6 md:mb-8`}>正確率：<span className={score >= 80 ? 'text-green-600' : 'text-orange-500'}>{score}%</span></p>
+                                <button onClick={handleSaveAndNext} className="w-full py-3 md:py-4 bg-green-500 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-green-600 transition shadow-lg focus:outline-none">回選單</button>
                             </div>
                         </div>
                     );
                 }
-                
                 return null;
             };
 
             return (
                 <div className="flex flex-col min-h-screen bg-slate-50 relative overflow-x-hidden">
-                    <div className="flex-1 flex flex-col">
-                        {renderContent()}
-                    </div>
-                    
+                    <div className="flex-1 flex flex-col">{renderContent()}</div>
                     {showSettings && (
                         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-                                <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-slate-800 flex items-center gap-2">
-                                    <IconSettings /> 遊戲設定
-                                </h2>
-                                
-                                <div className="flex flex-col gap-4 md:gap-6">
-                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-3">
-                                        <span className="text-lg font-bold text-slate-700 border-b pb-2">畫面設定</span>
-                                        <div className="flex items-center justify-between mt-1">
-                                            <span className="font-bold text-slate-600 text-sm md:text-base">字體大小</span>
-                                            <div className="flex gap-2">
-                                                <button onClick={()=>toggleSetting('fontSizeLevel', 0)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===0?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A-</button>
-                                                <button onClick={()=>toggleSetting('fontSizeLevel', 1)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===1?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A</button>
-                                                <button onClick={()=>toggleSetting('fontSizeLevel', 2)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===2?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A+</button>
-                                            </div>
+                                <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-slate-800 flex items-center gap-2"><IconSettings /> 遊戲設定</h2>
+                                <div className="flex flex-col gap-4 md:gap-6 text-left">
+                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200">
+                                        <span className="text-lg font-bold text-slate-700 border-b pb-2 block mb-3">字體大小</span>
+                                        <div className="flex gap-2">
+                                            {[0, 1, 2].map(l => <button key={l} onClick={()=>toggleSetting('fontSizeLevel', l)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===l?'bg-blue-500 text-white':'bg-white border border-slate-300'}`}>A{l===0?'-':l===2?'+':''}</button>)}
                                         </div>
                                     </div>
-
-                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-4">
-                                        <span className="text-lg font-bold text-slate-700 border-b pb-2">語音設定</span>
-                                        <label className="flex items-center justify-between cursor-pointer group">
-                                            <span className="font-bold text-slate-600 text-sm md:text-base group-hover:text-blue-600 transition">自動報讀題目</span>
-                                            <input type="checkbox" checked={appSettings.autoRead} onChange={() => toggleSetting('autoRead')} className="w-5 h-5 md:w-6 md:h-6 accent-blue-500 focus:outline-none" />
-                                        </label>
-                                        
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex justify-between items-center">
-                                                <span className="font-bold text-slate-600 text-sm md:text-base">語音速度</span>
-                                                <span className="text-xs text-slate-500 bg-slate-200 px-2 py-0.5 rounded">{appSettings.voiceRate || 0.85}x</span>
-                                            </div>
-                                            <input type="range" min="0.5" max="1.5" step="0.05" value={appSettings.voiceRate || 0.85} onChange={(e) => toggleSetting('voiceRate', parseFloat(e.target.value))} className="w-full accent-blue-500 focus:outline-none" />
-                                        </div>
-
-                                        {voices.length > 0 && (
-                                            <div className="flex flex-col gap-2">
-                                                <span className="font-bold text-slate-600 text-sm md:text-base">語音風格 (瀏覽器內建)</span>
-                                                <select value={appSettings.voiceURI || ''} onChange={(e) => toggleSetting('voiceURI', e.target.value)} className="p-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:border-blue-500">
-                                                    <option value="">預設語音</option>
-                                                    {voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name}</option>)}
-                                                </select>
-                                            </div>
-                                        )}
-                                        
-                                        <button onClick={() => speak('這是一個測試聲音，聽聽看吧！')} className="mt-2 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm hover:bg-blue-200 transition flex items-center justify-center gap-2 focus:outline-none">
-                                            <IconSpeaker /> 測試當前語音
-                                        </button>
+                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200">
+                                        <span className="text-lg font-bold text-slate-700 border-b pb-2 block mb-3">語音設定</span>
+                                        <label className="flex items-center justify-between cursor-pointer mb-4"><span className="font-bold text-slate-600">自動報讀題目</span><input type="checkbox" checked={appSettings.autoRead} onChange={() => toggleSetting('autoRead')} className="w-5 h-5 accent-blue-500" /></label>
+                                        <input type="range" min="0.5" max="1.5" step="0.05" value={appSettings.voiceRate || 0.85} onChange={(e) => toggleSetting('voiceRate', parseFloat(e.target.value))} className="w-full accent-blue-500 mb-2" />
+                                        <div className="text-xs text-slate-500 text-center">速度: {appSettings.voiceRate}x</div>
                                     </div>
-
-                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-2 md:gap-3">
-                                        <span className="text-lg font-bold text-slate-700 border-b pb-2 mb-1">遊戲模式</span>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
-                                            <input type="radio" name="gameMode" value="normal" checked={appSettings.gameMode === 'normal'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-base md:text-lg text-slate-800">一般模式</span>
-                                                <span className="text-xs md:text-sm text-slate-500">答題後即時顯示對錯，全部答完後結算分數。</span>
-                                            </div>
-                                        </label>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
-                                            <input type="radio" name="gameMode" value="heart" checked={appSettings.gameMode === 'heart'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-base md:text-lg text-slate-800">愛心制度 (3條命)</span>
-                                                <span className="text-xs md:text-sm text-slate-500">你只有3顆愛心，答錯3題就需要重新來過！</span>
-                                            </div>
-                                        </label>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
-                                            <input type="radio" name="gameMode" value="timer" checked={appSettings.gameMode === 'timer'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
-                                            <div className="flex flex-col w-full">
-                                                <span className="font-bold text-base md:text-lg text-slate-800">計時模式</span>
-                                                <span className="text-xs md:text-sm text-slate-500">在限定時間內完成所有題目。</span>
-                                                {appSettings.gameMode === 'timer' && (
-                                                    <div className="mt-2 flex items-center gap-2">
-                                                        <span className="text-sm font-bold text-slate-600">設定時間：</span>
-                                                        <select value={appSettings.timerDuration || 60} onChange={(e) => toggleSetting('timerDuration', parseInt(e.target.value))} className="p-1 border border-slate-300 rounded text-sm bg-white focus:outline-none focus:border-blue-500">
-                                                            <option value={30}>30 秒</option>
-                                                            <option value={60}>60 秒</option>
-                                                            <option value={90}>90 秒</option>
-                                                            <option value={120}>120 秒</option>
-                                                            <option value={300}>5 分鐘</option>
-                                                        </select>
+                                    <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200">
+                                        <span className="text-lg font-bold text-slate-700 border-b pb-2 block mb-3">遊戲模式</span>
+                                        <div className="flex flex-col gap-3">
+                                            {[
+                                                { id: 'normal', label: '一般模式', desc: '答題即時顯示對錯，適合基礎練習。' },
+                                                { id: 'heart', label: '愛心制度', desc: '擁有3顆愛心，答錯3題就得重頭來過！' },
+                                                { id: 'timer', label: '計時模式', desc: '限時內完成挑戰，考驗大腦反應速度。' },
+                                                { id: 'submit', label: '交卷模式', desc: '作答時不提示對錯，最後才結算成績。' }
+                                            ].map(m => (
+                                                <label key={m.id} className="flex items-start gap-3 p-2 cursor-pointer hover:bg-white/50 rounded-lg transition-colors">
+                                                    <input type="radio" name="mode" value={m.id} checked={appSettings.gameMode === m.id} onChange={e=>toggleSetting('gameMode', e.target.value)} className="mt-1" />
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold text-slate-800">{m.label}</span>
+                                                        <span className="text-xs text-slate-500 leading-tight">{m.desc}</span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        </label>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
-                                            <input type="radio" name="gameMode" value="submit" checked={appSettings.gameMode === 'submit'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-base md:text-lg text-slate-800">交卷模式</span>
-                                                <span className="text-xs md:text-sm text-slate-500">作答時不提示對錯，全部測驗完畢後才知道結果。</span>
-                                            </div>
-                                        </label>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
-
-                                <button onClick={() => setShowSettings(false)} className="w-full mt-6 md:mt-8 bg-blue-500 text-white font-bold text-lg md:text-xl py-3 rounded-xl hover:bg-blue-600 transition focus:outline-none">
-                                    完成設定
-                                </button>
+                                <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-blue-500 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors">完成設定</button>
                             </div>
                         </div>
                     )}
-
-                    <footer className="w-full text-center py-4 md:py-6 text-slate-400 font-bold text-xs md:text-sm bg-slate-100 border-t border-slate-200 mt-auto">
-                        由特工365製作
-                    </footer>
+                    <footer className="w-full text-center py-4 text-slate-400 font-bold text-xs bg-slate-100 border-t">由特工365製作</footer>
                 </div>
             );
         }
 
-        const GamePlayView = ({ vol, level, levelWords, allWordsInVol, appSettings, onFinish, onCancel, speak, playSuccess, playFail, playCelebration }) => {
-            const [questions, setQuestions] = useState([]);
-            const [currentIndex, setCurrentIndex] = useState(0);
-            const [mistakes, setMistakes] = useState([]);
-            const [feedback, setFeedback] = useState(null); 
-            const [hearts, setHearts] = useState(3);
-            
-            const [timeElapsed, setTimeElapsed] = useState(0);
-            const [timeLeft, setTimeLeft] = useState(appSettings.timerDuration || 60);
-
-            const isHeartMode = appSettings.gameMode === 'heart';
-            const isSubmitMode = appSettings.gameMode === 'submit';
-            const isTimerMode = appSettings.gameMode === 'timer';
-
+        const GamePlayView = ({ vol, level, levelWords, appSettings, onFinish, onCancel, speak }) => {
+            const [questions, setQuestions] = useState([]); const [currentIndex, setCurrentIndex] = useState(0); const [mistakes, setMistakes] = useState([]);
+            const [feedback, setFeedback] = useState(null); const [hearts, setHearts] = useState(3); const [timeElapsed, setTimeElapsed] = useState(0); const [timeLeft, setTimeLeft] = useState(appSettings.timerDuration || 60);
             useEffect(() => {
                 const generated = levelWords.map(targetObj => {
-                    const opts = [targetObj.word];
-                    
-                    let pool = levelWords.filter(w => w.word !== targetObj.word);
-                    const shuffledPool = [...pool].sort(() => 0.5 - Math.random());
-                    
-                    for (let i = 0; i < Math.min(3, shuffledPool.length); i++) {
-                        opts.push(shuffledPool[i].word);
-                    }
-                    
-                    if (opts.length < 4) {
-                        const extraPool = allWordsInVol.filter(w => w.word !== targetObj.word && !pool.some(p => p.word === w.word));
-                        const shuffledExtra = [...extraPool].sort(() => 0.5 - Math.random());
-                        for (let i = 0; opts.length < 4 && i < shuffledExtra.length; i++) {
-                            opts.push(shuffledExtra[i].word);
-                        }
-                    }
-                    
-                    const randomPhrase = targetObj.phrases.length > 0 
-                        ? targetObj.phrases[Math.floor(Math.random() * targetObj.phrases.length)]
-                        : null;
-
-                    return {
-                        target: targetObj,
-                        phrase: randomPhrase, 
-                        options: opts.sort(() => 0.5 - Math.random()) 
-                    };
-                });
-                setQuestions(generated);
-            }, [levelWords, allWordsInVol]);
-
-            const currentQ = questions[currentIndex];
-
+                    const opts = [targetObj.word]; let pool = levelWords.filter(w => w.word !== targetObj.word); let shuffledPool = [...pool].sort(() => 0.5 - Math.random());
+                    for (let i = 0; i < 3 && i < shuffledPool.length; i++) opts.push(shuffledPool[i].word);
+                    const phrase = targetObj.phrases[Math.floor(Math.random() * targetObj.phrases.length)];
+                    return { target: targetObj, phrase, options: opts.sort(() => 0.5 - Math.random()) };
+                }); setQuestions(generated);
+            }, [levelWords]);
             useEffect(() => {
-                if (!currentQ || feedback?.status === 'timeout') return;
-                const timer = setInterval(() => {
-                    setTimeElapsed(prev => prev + 1);
-                    if (isTimerMode) {
-                        setTimeLeft(prev => prev - 1);
-                    }
-                }, 1000);
+                if (!questions[currentIndex] || feedback?.status === 'timeout') return;
+                const timer = setInterval(() => { setTimeElapsed(prev => prev + 1); if (appSettings.gameMode === 'timer') setTimeLeft(prev => prev - 1); }, 1000);
                 return () => clearInterval(timer);
-            }, [currentQ, isTimerMode, feedback]);
-
+            }, [currentIndex, appSettings.gameMode, feedback]);
             useEffect(() => {
-                if (isTimerMode && timeLeft <= 0 && (!feedback || feedback.status !== 'timeout')) {
-                    playFail();
-                    setFeedback({ status: 'timeout' });
-                    setTimeout(() => {
-                        const score = Math.round(((questions.length - mistakes.length) / questions.length) * 100);
-                        onFinish(score, mistakes, 'timeout', timeElapsed);
-                    }, 1500);
-                }
-            }, [timeLeft, isTimerMode, feedback, mistakes, questions.length, timeElapsed, onFinish, playFail]);
-
-            useEffect(() => {
-                if (currentQ && !feedback) {
-                    if (appSettings.autoRead) {
-                        speak(currentQ.phrase || '請選出正確的字');
-                    }
-                }
-            }, [currentIndex, currentQ, appSettings]);
-
-            if (!currentQ) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold">準備中...</div>;
-
+                if (appSettings.gameMode === 'timer' && timeLeft <= 0 && !feedback) { setFeedback({ status: 'timeout' }); setTimeout(() => onFinish(Math.round(((questions.length - mistakes.length) / questions.length) * 100), mistakes, 'timeout', timeElapsed), 1500); }
+            }, [timeLeft]);
+            useEffect(() => { if (questions[currentIndex] && !feedback && appSettings.autoRead) speak(questions[currentIndex].phrase); }, [currentIndex, feedback]);
             const handleAnswer = (ans) => {
-                if (feedback) return; 
-
-                const isCorrect = ans === currentQ.target.word;
-
-                if (isSubmitMode) {
-                    let newMistakes = mistakes;
-                    if (!isCorrect) {
-                        newMistakes = [...mistakes, currentQ];
-                        setMistakes(newMistakes);
-                    }
-                    setFeedback({ status: 'selected', clicked: ans });
-                    
-                    setTimeout(() => {
-                        setFeedback(null);
-                        if (currentIndex + 1 < questions.length) {
-                            setCurrentIndex(prev => prev + 1);
-                        } else {
-                            const score = Math.round(((questions.length - newMistakes.length) / questions.length) * 100);
-                            onFinish(score, newMistakes, false, timeElapsed);
-                        }
-                    }, 300);
-                    return;
+                if (feedback) return; const currentQ = questions[currentIndex]; const isCorrect = ans === currentQ.target.word;
+                if (appSettings.gameMode === 'submit') {
+                    let nm = isCorrect ? mistakes : [...mistakes, currentQ]; setFeedback({ status: 'selected', clicked: ans });
+                    setTimeout(() => { setFeedback(null); if (currentIndex + 1 < questions.length) setCurrentIndex(prev => prev + 1); else onFinish(Math.round(((questions.length - nm.length) / questions.length) * 100), nm, false, timeElapsed); }, 300); return;
                 }
-
                 if (isCorrect) {
-                    playSuccess();
                     setFeedback({ status: 'correct', clicked: ans });
-                    
-                    setTimeout(() => {
-                        setFeedback(null);
-                        if (currentIndex + 1 < questions.length) {
-                            setCurrentIndex(prev => prev + 1);
-                        } else {
-                            const score = Math.round(((questions.length - mistakes.length) / questions.length) * 100);
-                            if (score >= 80) playCelebration();
-                            onFinish(score, mistakes, false, timeElapsed);
-                        }
-                    }, 1000); 
-                    
+                    setTimeout(() => { setFeedback(null); if (currentIndex + 1 < questions.length) setCurrentIndex(prev => prev + 1); else onFinish(Math.round(((questions.length - mistakes.length) / questions.length) * 100), mistakes, false, timeElapsed); }, 800);
                 } else {
-                    playFail();
-                    const newMistakes = [...mistakes, currentQ];
-                    setMistakes(newMistakes);
-                    setFeedback({ status: 'incorrect', clicked: ans });
-
-                    if (isHeartMode) {
-                        const newHearts = hearts - 1;
-                        setHearts(newHearts);
-                        if (newHearts <= 0) {
-                            setTimeout(() => {
-                                onFinish(0, newMistakes, 'heart', timeElapsed); 
-                            }, 1500);
-                            return;
-                        }
-                    }
-                    
-                    setTimeout(() => {
-                        setFeedback(null);
-                        if (currentIndex + 1 < questions.length) {
-                            setCurrentIndex(prev => prev + 1);
-                        } else {
-                            const score = Math.round(((questions.length - newMistakes.length) / questions.length) * 100);
-                            if (score >= 80) playCelebration();
-                            onFinish(score, newMistakes, false, timeElapsed);
-                        }
-                    }, 2500); 
+                    const nm = [...mistakes, currentQ]; setMistakes(nm); setFeedback({ status: 'incorrect', clicked: ans });
+                    if (appSettings.gameMode === 'heart') { const nh = hearts - 1; setHearts(nh); if (nh <= 0) { setTimeout(() => onFinish(0, nm, 'heart', timeElapsed), 1500); return; } }
+                    setTimeout(() => { setFeedback(null); if (currentIndex + 1 < questions.length) setCurrentIndex(prev => prev + 1); else onFinish(Math.round(((questions.length - nm.length) / questions.length) * 100), nm, false, timeElapsed); }, 1500);
                 }
             };
-
-            const targetPhrase = currentQ.phrase;
-            const displayText = targetPhrase ? targetPhrase.replace(new RegExp(currentQ.target.word, 'g'), '「    」') : '請選出正確的字';
-
+            if (!questions[currentIndex]) return null; const cq = questions[currentIndex];
             return (
                 <div className="w-full flex-1 flex flex-col items-center">
                     <div className="w-full bg-white shadow-sm p-3 md:p-4 flex items-center justify-between mb-4 md:mb-8 sticky top-0 z-30">
-                        <button onClick={onCancel} className="px-3 py-1.5 md:px-6 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-lg md:rounded-xl font-bold text-slate-700 shrink-0 text-xs md:text-base focus:outline-none">放棄退出</button>
-                        <div className="flex-1 px-4 md:px-8 min-w-0">
-                            <div className="w-full bg-slate-200 rounded-full h-2 md:h-4">
-                                <div className="bg-blue-500 h-2 md:h-4 rounded-full transition-all duration-300" style={{ width: `${((currentIndex) / questions.length) * 100}%` }}></div>
-                            </div>
-                            <div className="text-center mt-1 md:mt-2 font-bold text-slate-500 text-[10px] md:text-sm whitespace-nowrap">進度：{currentIndex + 1} / {questions.length}</div>
+                        <button onClick={onCancel} className="px-3 py-1.5 bg-slate-200 rounded-lg font-bold text-slate-700 text-xs md:text-base">退出</button>
+                        <div className="flex-1 px-4 md:px-8"><div className="w-full bg-slate-200 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full transition-all duration-300" style={{ width: `${((currentIndex) / questions.length) * 100}%` }}></div></div></div>
+                        <div className="flex items-center gap-2">
+                            {appSettings.gameMode === 'timer' && <div className="font-bold text-orange-600">⏳ {timeLeft}s</div>}
+                            {appSettings.gameMode === 'heart' && <div className="flex items-center gap-1">{[...Array(3)].map((_, i) => <div key={i} className={`transition-all duration-300 ${i < hearts ? "opacity-100 scale-100" : "opacity-20 scale-75"}`}><IconHeart /></div>)}</div>}
                         </div>
-                        {isTimerMode && (
-                            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl border shrink-0 font-bold text-xs md:text-base ${timeLeft <= 10 ? 'bg-red-100 text-red-600 border-red-200 animate-pulse' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
-                                ⏳ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                            </div>
-                        )}
-                        {isHeartMode && (
-                            <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-red-50 rounded-lg md:rounded-xl border border-red-100 shrink-0">
-                                {[...Array(3)].map((_, i) => (
-                                    <div key={i} className={`transition-all duration-300 scale-75 md:scale-100 ${i < hearts ? "opacity-100" : "opacity-20 grayscale scale-50 md:scale-75"}`}>
-                                        <IconHeart />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
-
-                    <div className="w-full max-w-4xl px-4 md:px-6 flex flex-col items-center flex-1 justify-center pb-10">
-                        <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 text-center mb-6 md:mb-10 border-4 border-blue-50 relative">
-                            <button onClick={() => speak(currentQ.phrase || '請選出正確的字')} className="absolute top-2 right-2 md:top-6 md:right-6 p-2 md:p-4 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition scale-75 md:scale-100 focus:outline-none" title="點擊朗讀題目">
-                                <IconSpeaker />
-                            </button>
-                            <h2 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-blue-900 tracking-widest leading-normal md:leading-tight">{displayText}</h2>
+                    <div className="w-full max-w-4xl px-4 flex flex-col items-center flex-1 justify-center pb-10">
+                        <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-lg p-6 md:p-12 text-center mb-6 md:mb-10 border-4 border-blue-50 relative">
+                            <button onClick={() => speak(cq.phrase)} className="absolute top-2 right-2 p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition scale-75 md:scale-100"><IconSpeaker /></button>
+                            <h2 className="text-4xl md:text-7xl font-extrabold text-blue-900 tracking-widest">{cq.phrase.replace(new RegExp(cq.target.word, 'g'), '「  」')}</h2>
                         </div>
-
-                        {feedback && feedback.status !== 'selected' && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-                                {feedback.status === 'correct' ? 
-                                    <div className="bg-green-500 text-white rounded-full p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-bounce">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" className="md:w-20 md:h-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    </div>
-                                : feedback.status === 'timeout' ? 
-                                    <div className="bg-red-500 text-white rounded-3xl p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-pulse font-bold text-2xl md:text-4xl text-center">
-                                        時間到！
-                                    </div>
-                                :
-                                    <div className="bg-red-500 text-white rounded-full p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-pulse">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" className="md:w-20 md:h-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                    </div>
-                                }
-                            </div>
-                        )}
-
                         <div className="grid grid-cols-2 gap-4 md:gap-6 w-full">
-                            {currentQ.options.map((opt, idx) => {
-                                let btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700 hover:shadow-xl transition-all active:scale-95 focus:outline-none";
-                                
+                            {cq.options.map((opt, idx) => {
+                                let bc = "bg-white border-4 border-slate-200 rounded-2xl p-6 md:p-10 text-5xl md:text-8xl font-bold text-slate-800 transition-all active:scale-95 focus:outline-none";
                                 if (feedback) {
-                                    if (feedback.status === 'selected') {
-                                        btnClass = opt === feedback.clicked 
-                                            ? "bg-blue-100 border-4 border-blue-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-blue-700 shadow-xl scale-105 z-10 focus:outline-none" 
-                                            : "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 opacity-40 focus:outline-none";
-                                    } else {
-                                        if (opt === currentQ.target.word) {
-                                            btnClass = "bg-green-100 border-4 border-green-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-green-700 shadow-xl transition-all scale-105 z-10 focus:outline-none";
-                                        } else if (feedback.status === 'incorrect' && opt === feedback.clicked) {
-                                            btnClass = "bg-red-100 border-4 border-red-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-red-700 transition-all opacity-70 focus:outline-none";
-                                        } else {
-                                            btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 transition-all opacity-40 focus:outline-none";
-                                        }
-                                    }
+                                    if (feedback.status === 'selected') bc = opt === feedback.clicked ? "bg-blue-100 border-blue-500 text-blue-700 z-10" : "bg-white text-slate-300 opacity-40";
+                                    else if (opt === cq.target.word) bc = "bg-green-100 border-green-500 text-green-700 z-10";
+                                    else if (feedback.status === 'incorrect' && opt === feedback.clicked) bc = "bg-red-100 border-red-500 text-red-700 opacity-70";
+                                    else bc = "bg-white text-slate-300 opacity-40";
                                 }
-
-                                return (
-                                    <button 
-                                        key={idx}
-                                        onClick={() => handleAnswer(opt)}
-                                        disabled={!!feedback}
-                                        className={btnClass}
-                                    >
-                                        {opt}
-                                    </button>
-                                );
+                                return <button key={idx} onClick={() => handleAnswer(opt)} disabled={!!feedback} className={bc}>{opt}</button>;
                             })}
                         </div>
                     </div>
@@ -896,8 +481,7 @@
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<App />);
     </script>
 </body>
 </html>
