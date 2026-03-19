@@ -17,7 +17,18 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        body { margin: 0; padding: 0; font-family: sans-serif; }
+        body { margin: 0; padding: 0; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* 移除按鈕選取時的藍色邊框與手機點擊陰影 */
+        button:focus, button:active {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* 針對 Chrome/Safari 的特殊處理 */
+        *:focus {
+            outline: none !important;
+        }
     </style>
 </head>
 <body>
@@ -32,9 +43,6 @@
         const IconSettings = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
         const IconHeart = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>;
 
-        // ==========================================
-        // 📚 題庫設定區 (GAME_DATA)
-        // ==========================================
         const GAME_DATA = {
             1: [
                 [{ word: '衣', phrases: ['衣服', '糖衣'] }, { word: '刻', phrases: ['刻苦', '立刻'] }, { word: '晚', phrases: ['晚上', '晚到'] }, { word: '陽', phrases: ['陽光', '陽傘'] }, { word: '半', phrases: ['一半', '半夜'] }, { word: '觀', phrases: ['觀光', '觀察'] }, { word: '石', phrases: ['岩石', '寶石'] }, { word: '特', phrases: ['特色', '特別'] }, { word: '處', phrases: ['處理', '處分'] }, { word: '通', phrases: ['通過', '通知'] }, { word: '照', phrases: ['照片', '照亮'] }],
@@ -242,26 +250,26 @@
             };
 
             const renderHeader = (pageTitle, showBack = true, backAction = () => setView('home')) => (
-                <header className="w-full bg-white shadow-md py-4 px-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between mb-8 sticky top-0 z-40 gap-4">
-                    <div className="flex items-center gap-3 md:gap-4">
+                <header className="w-full bg-white shadow-md py-3 px-3 md:py-4 md:px-6 flex flex-row items-center justify-between mb-8 sticky top-0 z-40 gap-2">
+                    <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
                         {showBack && (
-                            <button onClick={backAction} className="px-3 py-2 md:px-4 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-slate-700 shrink-0 text-sm md:text-base">
+                            <button onClick={backAction} className="px-3 py-2 md:px-4 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-slate-700 shrink-0 text-xs md:text-base focus:outline-none">
                                 返回
                             </button>
                         )}
-                        <div className="flex flex-col">
-                            <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
-                                <h1 className="text-xl md:text-2xl font-black text-blue-900 tracking-wide">識字大冒險</h1>
-                                <span className="text-xs md:text-sm font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded">嘉義縣識字學習系統教材</span>
+                        <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <h1 className="text-lg md:text-2xl font-black text-blue-900 tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">識字大冒險</h1>
+                                <span className="text-[10px] md:text-sm font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded whitespace-nowrap shrink-0">嘉義縣識字教材</span>
                             </div>
                             {pageTitle && (
-                                <h2 className="text-sm md:text-lg font-bold text-slate-600 mt-1">{pageTitle}</h2>
+                                <h2 className="text-xs md:text-lg font-bold text-slate-500 mt-0.5 truncate">{pageTitle}</h2>
                             )}
                         </div>
                     </div>
-                    <div className="flex items-center justify-end gap-2 md:gap-4 shrink-0">
-                        <button onClick={() => setShowSettings(true)} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-2 font-bold text-sm md:text-base">
-                            <IconSettings /> <span className="hidden sm:inline">遊戲設定</span>
+                    <div className="flex items-center shrink-0">
+                        <button onClick={() => setShowSettings(true)} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-1.5 md:gap-2 font-bold text-xs md:text-base focus:outline-none">
+                            <IconSettings /> <span className="hidden sm:inline text-nowrap">遊戲設定</span>
                         </button>
                     </div>
                 </header>
@@ -286,7 +294,7 @@
                                 <div className="text-6xl md:text-8xl mb-2">🚀</div>
                                 <h2 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">請輸入你的名字</h2>
                                 <input name="pname" type="text" placeholder="你的名字..." required className="text-xl md:text-2xl p-4 border-2 rounded-xl text-center w-full focus:outline-none focus:border-blue-500" autoFocus />
-                                <button type="submit" className="bg-blue-500 text-white font-bold text-xl md:text-2xl py-4 rounded-xl hover:bg-blue-600 transition shadow-md mt-2 md:mt-4">開始挑戰</button>
+                                <button type="submit" className="bg-blue-500 text-white font-bold text-xl md:text-2xl py-4 rounded-xl hover:bg-blue-600 transition shadow-md mt-2 md:mt-4 focus:outline-none">開始挑戰</button>
                             </form>
                         </div>
                     );
@@ -308,7 +316,7 @@
                                     {[1, 2, 3, 4, 5].map(v => {
                                         const isActive = v === selectedVol;
                                         return (
-                                            <button key={v} onClick={() => setSelectedVol(v)} className={`flex-shrink-0 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-lg md:text-2xl transition-all ${isActive ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 shadow border-2 border-blue-100 hover:bg-blue-50'}`}>
+                                            <button key={v} onClick={() => setSelectedVol(v)} className={`flex-shrink-0 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-lg md:text-2xl transition-all focus:outline-none ${isActive ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 shadow border-2 border-blue-100 hover:bg-blue-50'}`}>
                                                 第 {v} 冊
                                             </button>
                                         );
@@ -327,7 +335,7 @@
                                                 key={l} 
                                                 disabled={!isUnlocked} 
                                                 onClick={() => startGame(selectedVol, l)} 
-                                                className={`relative flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl md:rounded-3xl border-4 transition-all h-32 md:h-40
+                                                className={`relative flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl md:rounded-3xl border-4 transition-all h-32 md:h-40 focus:outline-none
                                                     ${isUnlocked ? 'border-green-400 bg-white hover:bg-green-50 hover:scale-105 shadow-md cursor-pointer' : 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'}`}
                                             >
                                                 {!isUnlocked ? (
@@ -460,7 +468,7 @@
                     };
 
                     return (
-                        <div className="w-full flex-1 flex flex-col items-center justify-center p-4 pb-20 overflow-y-auto">
+                        <div className="w-full flex-1 flex flex-col items-center justify-center p-4 pb-20 overflow-y-auto text-center">
                             <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-2xl flex flex-col items-center text-center border-t-8 border-t-blue-500 my-auto">
                                 {endReason === 'heart' ? (
                                     <>
@@ -498,12 +506,12 @@
                                         </h3>
                                         <div className="flex flex-col gap-3">
                                             {mistakes.map((m, i) => (
-                                                <div key={i} className="flex items-center justify-between bg-white p-3 md:p-4 rounded-xl shadow-sm border border-orange-100">
+                                                <div key={i} className="flex items-center justify-between bg-white p-3 md:p-4 rounded-xl shadow-sm border border-orange-100 text-center sm:text-left">
                                                     <div className="flex items-center gap-3 md:gap-4 flex-wrap">
                                                         <span className="text-3xl md:text-4xl font-bold text-red-500">{m.target.word}</span>
                                                         <span className="text-lg md:text-2xl text-slate-700 font-bold">{m.target.phrases.join(' , ')}</span>
                                                     </div>
-                                                    <button onClick={() => speak([m.target.word, ...m.target.phrases].join('，'))} className="p-2 md:p-3 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 shrink-0" title="朗讀此字詞">
+                                                    <button onClick={() => speak([m.target.word, ...m.target.phrases].join('，'))} className="p-2 md:p-3 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 shrink-0 focus:outline-none" title="朗讀此字詞">
                                                         <IconSpeaker />
                                                     </button>
                                                 </div>
@@ -513,13 +521,13 @@
                                 )}
 
                                 <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 w-full">
-                                    <button onClick={downloadScorecard} className="flex-1 py-3 md:py-4 bg-purple-100 text-purple-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-purple-200 transition border-2 border-purple-200">
+                                    <button onClick={downloadScorecard} className="flex-1 py-3 md:py-4 bg-purple-100 text-purple-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-purple-200 transition border-2 border-purple-200 focus:outline-none">
                                         📥 下載成績單
                                     </button>
-                                    <button onClick={() => setView('gamePlay')} className="flex-1 py-3 md:py-4 bg-blue-100 text-blue-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-blue-200 transition border-2 border-blue-200">
+                                    <button onClick={() => setView('gamePlay')} className="flex-1 py-3 md:py-4 bg-blue-100 text-blue-700 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-blue-200 transition border-2 border-blue-200 focus:outline-none">
                                         🔄 重新挑戰
                                     </button>
-                                    <button onClick={handleSaveAndNext} className="flex-1 py-3 md:py-4 bg-green-500 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-green-600 transition shadow-lg">
+                                    <button onClick={handleSaveAndNext} className="flex-1 py-3 md:py-4 bg-green-500 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-green-600 transition shadow-lg focus:outline-none">
                                         🏠 儲存並回選單
                                     </button>
                                 </div>
@@ -532,7 +540,7 @@
             };
 
             return (
-                <div className="flex flex-col min-h-screen bg-slate-50 relative">
+                <div className="flex flex-col min-h-screen bg-slate-50 relative overflow-x-hidden">
                     <div className="flex-1 flex flex-col">
                         {renderContent()}
                     </div>
@@ -550,9 +558,9 @@
                                         <div className="flex items-center justify-between mt-1">
                                             <span className="font-bold text-slate-600 text-sm md:text-base">字體大小</span>
                                             <div className="flex gap-2">
-                                                <button onClick={()=>toggleSetting('fontSizeLevel', 0)} className={`px-3 py-1 rounded font-bold transition ${appSettings.fontSizeLevel===0?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A-</button>
-                                                <button onClick={()=>toggleSetting('fontSizeLevel', 1)} className={`px-3 py-1 rounded font-bold transition ${appSettings.fontSizeLevel===1?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A</button>
-                                                <button onClick={()=>toggleSetting('fontSizeLevel', 2)} className={`px-3 py-1 rounded font-bold transition ${appSettings.fontSizeLevel===2?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A+</button>
+                                                <button onClick={()=>toggleSetting('fontSizeLevel', 0)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===0?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A-</button>
+                                                <button onClick={()=>toggleSetting('fontSizeLevel', 1)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===1?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A</button>
+                                                <button onClick={()=>toggleSetting('fontSizeLevel', 2)} className={`px-3 py-1 rounded font-bold transition focus:outline-none ${appSettings.fontSizeLevel===2?'bg-blue-500 text-white':'bg-white border border-slate-300 hover:bg-slate-100'}`}>A+</button>
                                             </div>
                                         </div>
                                     </div>
@@ -561,7 +569,7 @@
                                         <span className="text-lg font-bold text-slate-700 border-b pb-2">語音設定</span>
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="font-bold text-slate-600 text-sm md:text-base group-hover:text-blue-600 transition">自動報讀題目</span>
-                                            <input type="checkbox" checked={appSettings.autoRead} onChange={() => toggleSetting('autoRead')} className="w-5 h-5 md:w-6 md:h-6 accent-blue-500" />
+                                            <input type="checkbox" checked={appSettings.autoRead} onChange={() => toggleSetting('autoRead')} className="w-5 h-5 md:w-6 md:h-6 accent-blue-500 focus:outline-none" />
                                         </label>
                                         
                                         <div className="flex flex-col gap-2">
@@ -569,7 +577,7 @@
                                                 <span className="font-bold text-slate-600 text-sm md:text-base">語音速度</span>
                                                 <span className="text-xs text-slate-500 bg-slate-200 px-2 py-0.5 rounded">{appSettings.voiceRate || 0.85}x</span>
                                             </div>
-                                            <input type="range" min="0.5" max="1.5" step="0.05" value={appSettings.voiceRate || 0.85} onChange={(e) => toggleSetting('voiceRate', parseFloat(e.target.value))} className="w-full accent-blue-500" />
+                                            <input type="range" min="0.5" max="1.5" step="0.05" value={appSettings.voiceRate || 0.85} onChange={(e) => toggleSetting('voiceRate', parseFloat(e.target.value))} className="w-full accent-blue-500 focus:outline-none" />
                                         </div>
 
                                         {voices.length > 0 && (
@@ -582,29 +590,29 @@
                                             </div>
                                         )}
                                         
-                                        <button onClick={() => speak('這是一個測試聲音，聽聽看吧！')} className="mt-2 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm hover:bg-blue-200 transition flex items-center justify-center gap-2">
+                                        <button onClick={() => speak('這是一個測試聲音，聽聽看吧！')} className="mt-2 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm hover:bg-blue-200 transition flex items-center justify-center gap-2 focus:outline-none">
                                             <IconSpeaker /> 測試當前語音
                                         </button>
                                     </div>
 
                                     <div className="bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200 flex flex-col gap-2 md:gap-3">
                                         <span className="text-lg font-bold text-slate-700 border-b pb-2 mb-1">遊戲模式</span>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
-                                            <input type="radio" name="gameMode" value="normal" checked={appSettings.gameMode === 'normal'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
+                                            <input type="radio" name="gameMode" value="normal" checked={appSettings.gameMode === 'normal'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-base md:text-lg text-slate-800">一般模式</span>
                                                 <span className="text-xs md:text-sm text-slate-500">答題後即時顯示對錯，全部答完後結算分數。</span>
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
-                                            <input type="radio" name="gameMode" value="heart" checked={appSettings.gameMode === 'heart'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
+                                            <input type="radio" name="gameMode" value="heart" checked={appSettings.gameMode === 'heart'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-base md:text-lg text-slate-800">愛心制度 (3條命)</span>
                                                 <span className="text-xs md:text-sm text-slate-500">你只有3顆愛心，答錯3題就需要重新來過！</span>
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
-                                            <input type="radio" name="gameMode" value="timer" checked={appSettings.gameMode === 'timer'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
+                                            <input type="radio" name="gameMode" value="timer" checked={appSettings.gameMode === 'timer'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
                                             <div className="flex flex-col w-full">
                                                 <span className="font-bold text-base md:text-lg text-slate-800">計時模式</span>
                                                 <span className="text-xs md:text-sm text-slate-500">在限定時間內完成所有題目。</span>
@@ -622,8 +630,8 @@
                                                 )}
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg">
-                                            <input type="radio" name="gameMode" value="submit" checked={appSettings.gameMode === 'submit'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1" />
+                                        <label className="flex items-start gap-2 md:gap-3 cursor-pointer p-2 hover:bg-slate-100 rounded-lg text-left">
+                                            <input type="radio" name="gameMode" value="submit" checked={appSettings.gameMode === 'submit'} onChange={(e) => toggleSetting('gameMode', e.target.value)} className="w-4 h-4 md:w-5 md:h-5 mt-1 focus:outline-none" />
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-base md:text-lg text-slate-800">交卷模式</span>
                                                 <span className="text-xs md:text-sm text-slate-500">作答時不提示對錯，全部測驗完畢後才知道結果。</span>
@@ -632,7 +640,7 @@
                                     </div>
                                 </div>
 
-                                <button onClick={() => setShowSettings(false)} className="w-full mt-6 md:mt-8 bg-blue-500 text-white font-bold text-lg md:text-xl py-3 rounded-xl hover:bg-blue-600 transition">
+                                <button onClick={() => setShowSettings(false)} className="w-full mt-6 md:mt-8 bg-blue-500 text-white font-bold text-lg md:text-xl py-3 rounded-xl hover:bg-blue-600 transition focus:outline-none">
                                     完成設定
                                 </button>
                             </div>
@@ -802,15 +810,15 @@
             return (
                 <div className="w-full flex-1 flex flex-col items-center">
                     <div className="w-full bg-white shadow-sm p-3 md:p-4 flex items-center justify-between mb-4 md:mb-8 sticky top-0 z-30">
-                        <button onClick={onCancel} className="px-3 py-1.5 md:px-6 md:py-2 bg-slate-200 rounded-lg md:rounded-xl font-bold text-slate-700 hover:bg-slate-300 text-xs md:text-base">放棄退出</button>
-                        <div className="flex-1 px-4 md:px-8">
+                        <button onClick={onCancel} className="px-3 py-1.5 md:px-6 md:py-2 bg-slate-200 hover:bg-slate-300 rounded-lg md:rounded-xl font-bold text-slate-700 shrink-0 text-xs md:text-base focus:outline-none">放棄退出</button>
+                        <div className="flex-1 px-4 md:px-8 min-w-0">
                             <div className="w-full bg-slate-200 rounded-full h-2 md:h-4">
                                 <div className="bg-blue-500 h-2 md:h-4 rounded-full transition-all duration-300" style={{ width: `${((currentIndex) / questions.length) * 100}%` }}></div>
                             </div>
-                            <div className="text-center mt-1 md:mt-2 font-bold text-slate-500 text-xs md:text-base">進度：{currentIndex + 1} / {questions.length}</div>
+                            <div className="text-center mt-1 md:mt-2 font-bold text-slate-500 text-[10px] md:text-sm whitespace-nowrap">進度：{currentIndex + 1} / {questions.length}</div>
                         </div>
                         {isTimerMode && (
-                            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl border shrink-0 font-bold ${timeLeft <= 10 ? 'bg-red-100 text-red-600 border-red-200 animate-pulse' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
+                            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl border shrink-0 font-bold text-xs md:text-base ${timeLeft <= 10 ? 'bg-red-100 text-red-600 border-red-200 animate-pulse' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
                                 ⏳ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                             </div>
                         )}
@@ -827,7 +835,7 @@
 
                     <div className="w-full max-w-4xl px-4 md:px-6 flex flex-col items-center flex-1 justify-center pb-10">
                         <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 text-center mb-6 md:mb-10 border-4 border-blue-50 relative">
-                            <button onClick={() => speak(currentQ.phrase || '請選出正確的字')} className="absolute top-2 right-2 md:top-6 md:right-6 p-2 md:p-4 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition scale-75 md:scale-100" title="點擊朗讀題目">
+                            <button onClick={() => speak(currentQ.phrase || '請選出正確的字')} className="absolute top-2 right-2 md:top-6 md:right-6 p-2 md:p-4 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition scale-75 md:scale-100 focus:outline-none" title="點擊朗讀題目">
                                 <IconSpeaker />
                             </button>
                             <h2 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-blue-900 tracking-widest leading-normal md:leading-tight">{displayText}</h2>
@@ -840,7 +848,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" className="md:w-20 md:h-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                     </div>
                                 : feedback.status === 'timeout' ? 
-                                    <div className="bg-red-500 text-white rounded-3xl p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-pulse font-bold text-2xl md:text-4xl">
+                                    <div className="bg-red-500 text-white rounded-3xl p-6 md:p-10 shadow-2xl scale-110 md:scale-150 animate-pulse font-bold text-2xl md:text-4xl text-center">
                                         時間到！
                                     </div>
                                 :
@@ -853,20 +861,20 @@
 
                         <div className="grid grid-cols-2 gap-4 md:gap-6 w-full">
                             {currentQ.options.map((opt, idx) => {
-                                let btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700 hover:shadow-xl transition-all active:scale-95";
+                                let btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-800 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700 hover:shadow-xl transition-all active:scale-95 focus:outline-none";
                                 
                                 if (feedback) {
                                     if (feedback.status === 'selected') {
                                         btnClass = opt === feedback.clicked 
-                                            ? "bg-blue-100 border-4 border-blue-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-blue-700 shadow-xl scale-105 z-10" 
-                                            : "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 opacity-40";
+                                            ? "bg-blue-100 border-4 border-blue-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-blue-700 shadow-xl scale-105 z-10 focus:outline-none" 
+                                            : "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 opacity-40 focus:outline-none";
                                     } else {
                                         if (opt === currentQ.target.word) {
-                                            btnClass = "bg-green-100 border-4 border-green-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-green-700 shadow-xl transition-all scale-105 z-10";
+                                            btnClass = "bg-green-100 border-4 border-green-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-green-700 shadow-xl transition-all scale-105 z-10 focus:outline-none";
                                         } else if (feedback.status === 'incorrect' && opt === feedback.clicked) {
-                                            btnClass = "bg-red-100 border-4 border-red-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-red-700 transition-all opacity-70";
+                                            btnClass = "bg-red-100 border-4 border-red-500 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-red-700 transition-all opacity-70 focus:outline-none";
                                         } else {
-                                            btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 transition-all opacity-40";
+                                            btnClass = "bg-white border-4 border-slate-200 rounded-[1.5rem] md:rounded-[2rem] p-6 sm:p-8 md:p-10 text-5xl sm:text-6xl md:text-8xl font-bold text-slate-300 transition-all opacity-40 focus:outline-none";
                                         }
                                     }
                                 }
