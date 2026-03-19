@@ -64,6 +64,7 @@
 
         const IconHeart = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>;
         const IconDownload = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>;
 
         const GAME_DATA = {
             1: [
@@ -96,7 +97,7 @@
                 [{ word: '麗', phrases: ['美麗', '華麗'] }, { word: '福', phrases: ['祝福', '福利'] }, { word: '領', phrases: ['領取', '領導'] }, { word: '嚇', phrases: ['驚嚇', '嚇唬'] }, { word: '推', phrases: ['推開', '推選'] }, { word: '倒', phrases: ['倒退', '倒立'] }, { word: '順', phrases: ['順便', '順從'] }, { word: '夠', phrases: ['足夠', '能夠'] }, { word: '村', phrases: ['鄉村', '村長'] }, { word: '叔', phrases: ['叔叔', '小叔'] }, { word: '遇', phrases: ['遇見', '待遇'] }],
                 [{ word: '易', phrases: ['交易', '容易'] }, { word: '隊', phrases: ['路隊', '棒球隊'] }, { word: '鄉', phrases: ['故鄉', '鄉親'] }, { word: '舉', phrases: ['選舉', '舉重'] }, { word: '量', phrases: ['測量', '商量'] }, { word: '賣', phrases: ['買賣', '賣力'] }, { word: '喝', phrases: ['喝茶', '喝醉'] }, { word: '格', phrases: ['價格', '品格'] }, { word: '雙', phrases: ['雙胞胎', '一雙鞋'] }, { word: '靜', phrases: ['平靜', '安靜'] }, { word: '趙', phrases: ['完璧歸趙', '趙同學'] }],
                 [{ word: '克', phrases: ['克服', '公克'] }, { word: '驗', phrases: ['驗血', '靈驗'] }, { word: '程', phrases: ['啟程', '路程'] }, { word: '族', phrases: ['家族', '水族館'] }, { word: '葉', phrases: ['葉子', '葉片'] }, { word: '兄', phrases: ['兄弟', '兄長'] }, { word: '待', phrases: ['等待', '對待'] }, { word: '亂', phrases: ['混亂', '亂來'] }, { word: '追', phrases: ['追趕', '追思'] }, { word: '冷', phrases: ['寒冷', '冷言冷語'] }, { word: '派', phrases: ['派遣', '蘋果派'] }],
-                [{ word: '祖', phrases: ['祖父', '始祖'] }, { word: '唱', phrases: ['唱歌', '唱名'] }, { word: '陳', phrases: ['陳列', '陳年'] }, { word: '佛', phrases: ['佛祖', '佛心'] }, { word: '伯', phrases: ['伯父', '老伯伯'] }, { word: '油', phrases: ['沙拉油', '路油油'] }, { word: '戲', phrases: ['演戲', '戲弄'] }, { word: '注', phrases: ['專注', '注水'] }, { word: '首', phrases: ['首先', '首領'] }, { word: '豬', phrases: ['豬肉', '豬八戒'] }],
+                [{ word: '祖', phrases: ['祖父', '始祖'] }, { word: '唱', phrases: ['唱歌', '唱名'] }, { word: '陳', phrases: ['陳列', '陳年'] }, { word: '畫', phrases: ['繪畫', '畫圖'] }, { word: '佛', phrases: ['佛祖', '佛心'] }, { word: '伯', phrases: ['伯父', '老伯伯'] }, { word: '油', phrases: ['沙拉油', '路油油'] }, { word: '戲', phrases: ['演戲', '戲弄'] }, { word: '注', phrases: ['專注', '注水'] }, { word: '首', phrases: ['首先', '首領'] }, { word: '豬', phrases: ['豬肉', '豬八戒'] }],
                 [{ word: '破', phrases: ['破壞', '破費'] }, { word: '堂', phrases: ['廳堂', '堂哥'] }, { word: '醫', phrases: ['醫生', '醫院'] }, { word: '相', phrases: ['相同', '互相'] }, { word: '晴', phrases: ['眼睛'] }, { word: '肉', phrases: ['肌肉', '果肉'] }, { word: '講', phrases: ['講話', '講究'] }, { word: '顧', phrases: ['照顧', '回顧'] }, { word: '切', phrases: ['切菜', '切入'] }, { word: '景', phrases: ['風景', '景仰'] }],
                 [{ word: '院', phrases: ['醫院', '庭院'] }, { word: '枝', phrases: ['樹枝', '花枝'] }, { word: '哭', phrases: ['哭泣', '哭喪著臉'] }, { word: '蓋', phrases: ['鍋蓋', '蓋章'] }, { word: '斷', phrases: ['切斷', '診斷'] }, { word: '察', phrases: ['觀察', '警察'] }, { word: '板', phrases: ['黑板', '官板'] }, { word: '假', phrases: ['假裝', '假髮'] }, { word: '團', phrases: ['紙團', '社團'] }, { word: '壞', phrases: ['破壞', '壞人'] }],
                 [{ word: '天', phrases: ['天空', '今天'] }, { word: '空', phrases: ['天空', '空氣'] }, { word: '氣', phrases: ['生氣', '天氣'] }, { word: '生', phrases: ['學生', '生活'] }],
@@ -136,6 +137,7 @@
             const [loading, setLoading] = useState(true);
             const [view, setView] = useState('login'); 
             const [showSettings, setShowSettings] = useState(false);
+            const [confirmDelete, setConfirmDelete] = useState(false); // 新增：刪除確認狀態
             const [voices, setVoices] = useState([]);
             const [playerName, setPlayerName] = useState('');
             const [playerHistory, setPlayerHistory] = useState({});
@@ -206,6 +208,16 @@
                 return best === -1 ? null : best;
             };
 
+            // --- 新增：清除紀錄功能 ---
+            const handleClearAllData = () => {
+                localStorage.removeItem(LOCAL_STORAGE_KEY_HISTORY);
+                setPlayerHistory({});
+                setPlayerName('');
+                setConfirmDelete(false);
+                setShowSettings(false);
+                setView('login');
+            };
+
             const exportToDoc = (filename, questionsContent, answersContent) => {
                 const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>識字大冒險</title><style>@page Section1 {size:595.3pt 841.9pt; margin:36pt 36pt 36pt 36pt; mso-header-margin:35.4pt; mso-footer-margin:35.4pt; mso-paper-source:0;} div.Section1 {page:Section1;} body {font-family:'標楷體', 'DFKai-SB', serif;}</style></head><body><div class='Section1'>`;
                 const postHtml = `</div></body></html>`;
@@ -244,7 +256,7 @@
                         <div style="padding: 5pt;">
                             <div style="text-align: center; border-bottom: 1.5pt solid #000; padding-bottom: 5pt; margin-bottom: 10pt;">
                                 <h1 style="font-size: 20pt; margin: 0;">《識字大冒險》學習單</h1>
-                                <p style="font-size: 12pt; color: #555; margin: 2pt 0 0 0;">嘉義縣學習識字系統教材</p>
+                                <p style="font-size: 12pt; color: #555; margin: 2pt 0 0 0;">嘉義縣識字學習系統教材</p>
                             </div>
                             <table border="0" width="100%" style="margin-bottom: 10pt; font-size: 13pt; border-bottom: 1pt solid #ccc; padding-bottom: 5pt;">
                                 <tr>
@@ -284,13 +296,13 @@
                     </div>
                     <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
                         {rightActions}
-                        <button onClick={() => setShowSettings(true)} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-1.5 md:gap-2 font-bold text-xs md:text-base focus:outline-none shadow-sm"><IconSettings /></button>
+                        <button onClick={() => { setShowSettings(true); setConfirmDelete(false); }} className="p-2 md:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-1.5 md:gap-2 font-bold text-xs md:text-base focus:outline-none shadow-sm"><IconSettings /></button>
                     </div>
                 </header>
             );
 
             const renderContent = () => {
-                if (loading) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold">載入中...</div>;
+                if (loading) return <div className="w-full flex-1 flex items-center justify-center text-xl md:text-3xl font-bold text-slate-400">載入中...</div>;
 
                 if (view === 'login') {
                     const handleLogin = (e) => {
@@ -360,7 +372,7 @@
                             <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-2xl flex flex-col items-center text-center border-t-8 border-t-blue-500 my-auto">
                                 <div className="text-6xl md:text-8xl mb-4 md:mb-6">{score >= 80 ? '🎉' : '💪'}</div>
                                 <h2 className={`text-3xl md:text-5xl font-bold mb-2 md:mb-4 ${score >= 80 ? 'text-green-600' : 'text-orange-500'}`}>{score >= 80 ? '闖關成功！' : '再接再厲！'}</h2>
-                                <p className={`text-xl md:text-3xl font-bold text-slate-700 mb-6 md:mb-8`}>正確率：<span className={score >= 80 ? 'text-green-600' : 'text-orange-500'}>{score}%</span></p>
+                                <p className={`text-xl md:text-3xl font-bold text-slate-700 mb-6 md:mb-8 text-nowrap`}>正確率：<span className={score >= 80 ? 'text-green-600' : 'text-orange-500'}>{score}%</span></p>
                                 <button onClick={handleSaveAndNext} className="w-full py-3 md:py-4 bg-green-500 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl hover:bg-green-600 transition shadow-lg focus:outline-none">回選單</button>
                             </div>
                         </div>
@@ -372,6 +384,8 @@
             return (
                 <div className="flex flex-col min-h-screen bg-slate-50 relative overflow-x-hidden">
                     <div className="flex-1 flex flex-col">{renderContent()}</div>
+                    
+                    {/* 設定 Modal */}
                     {showSettings && (
                         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -407,6 +421,27 @@
                                                 </label>
                                             ))}
                                         </div>
+                                    </div>
+
+                                    {/* ⚠️ 危險區域：清除紀錄 */}
+                                    <div className="bg-red-50 p-3 md:p-4 rounded-xl border border-red-200">
+                                        <span className="text-lg font-bold text-red-700 border-b border-red-200 pb-2 block mb-3 text-nowrap">⚠️ 危險區域</span>
+                                        {!confirmDelete ? (
+                                            <button 
+                                                onClick={() => setConfirmDelete(true)}
+                                                className="w-full flex items-center justify-center gap-2 py-2.5 bg-white border-2 border-red-500 text-red-600 rounded-xl font-bold hover:bg-red-500 hover:text-white transition-all text-sm md:text-base focus:outline-none"
+                                            >
+                                                <IconTrash /> 清除所有闖關紀錄
+                                            </button>
+                                        ) : (
+                                            <div className="flex flex-col gap-2">
+                                                <p className="text-xs font-bold text-red-600 text-center">確定要刪除所有進度與分數嗎？</p>
+                                                <div className="flex gap-2">
+                                                    <button onClick={handleClearAllData} className="flex-1 py-2 bg-red-600 text-white rounded-lg font-bold text-sm">確定</button>
+                                                    <button onClick={() => setConfirmDelete(false)} className="flex-1 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold text-sm">取消</button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <button onClick={() => setShowSettings(false)} className="w-full mt-6 bg-blue-500 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors focus:outline-none">完成設定</button>
@@ -458,10 +493,7 @@
             const getBtnClass = (opt) => {
                 const base = "bg-white border-4 border-slate-200 rounded-2xl p-6 md:p-10 text-5xl md:text-8xl font-bold text-slate-800 transition-all active:scale-95 focus:outline-none game-btn";
                 if (!feedback) return base;
-                
-                // 修正重點：不論什麼狀態，都必須包含尺寸相關的 base class (p-6, text-5xl 等)
                 const feedbackBase = "rounded-2xl p-6 md:p-10 text-5xl md:text-8xl font-bold game-btn transition-all";
-                
                 if (feedback.status === 'selected') {
                     return opt === feedback.clicked 
                         ? `${feedbackBase} bg-blue-100 border-blue-500 text-blue-700 z-10` 
@@ -490,7 +522,7 @@
                     <div className="w-full max-w-4xl px-4 flex flex-col items-center flex-1 justify-center pb-10">
                         <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-lg p-6 md:p-12 text-center mb-6 md:mb-10 border-4 border-blue-50 relative">
                             <button onClick={() => speak(cq.phrase)} className="absolute top-2 right-2 p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition scale-75 md:scale-100 focus:outline-none"><IconSpeaker /></button>
-                            <h2 className="text-4xl md:text-7xl font-extrabold text-blue-900 tracking-widest">{cq.phrase.replace(new RegExp(cq.target.word, 'g'), '「  」')}</h2>
+                            <h2 className="text-4xl md:text-7xl font-extrabold text-blue-900 tracking-widest leading-normal">{cq.phrase.replace(new RegExp(cq.target.word, 'g'), '「  」')}</h2>
                         </div>
                         <div className="grid grid-cols-2 gap-4 md:gap-6 w-full">
                             {cq.options.map((opt, idx) => (
